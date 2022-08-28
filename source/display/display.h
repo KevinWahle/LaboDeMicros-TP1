@@ -37,21 +37,6 @@
  ******************************************************************************/
 
 
-/**
- * @brief Get an array of digits that generate the string provided.
- * @param *s: the string.
- * @param digits: array of digits that generates s in the display (according DispDigits)
- */
-void string2Digit(char* s, dispDigit_t* digits);
-
-
-/**
- * @brief Get an array of digits that generate the number provided.
- * @param num: the number.
- * @param digits: array of digits that generates num in the display (according DispDigits)
- */
-void num2Digit(uint32_t num, dispDigit_t* digits);
-
 
 /*******************************************************************************
  ******************************************************************************/

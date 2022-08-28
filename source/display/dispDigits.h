@@ -1,16 +1,22 @@
-/*
- * dispDigits.h
- *
- *  Created on: 20 ago. 2022
- *      Author: Sergio Peralta
- */
+/***************************************************************************//**
+  @file     dispDigits.h
+  @brief    7 Segment Display Digits definitions and functions
+  @author   Sergio Peralta
+  @date		20 ago. 2022
+ ******************************************************************************/
 
-#ifndef DISPDIGITS_H_
-#define DISPDIGITS_H_
+#ifndef _DISPDIGITS_H_
+#define _DISPDIGITS_H_
+
+/*******************************************************************************
+ * INCLUDE HEADER FILES
+ ******************************************************************************/
 
 #include <stdint.h>
 
-typedef uint8_t dispDigit_t;
+/*******************************************************************************
+ * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
+ ******************************************************************************/
 
 //					  abcdefgDP		ON: 1  OFF:0
 
@@ -96,4 +102,40 @@ typedef uint8_t dispDigit_t;
 
 #define ALPH_COUNT	26
 
-#endif /* DISPDIGITS_H_ */
+/*******************************************************************************
+ * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
+ ******************************************************************************/
+
+typedef uint8_t dispDigit_t;
+
+/*******************************************************************************
+ * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
+ ******************************************************************************/
+
+
+
+/*******************************************************************************
+ * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
+ ******************************************************************************/
+
+
+/**
+ * @brief Get an array of digits that generate the string provided.
+ * @param *s: the string.
+ * @param digits: array of digits that generates s in the display (according DispDigits)
+ */
+void string2Digit(char* s, dispDigit_t* digits);
+
+
+/**
+ * @brief Get an array of digits that generate the number provided.
+ * @param num: the number.
+ * @param digits: array of digits that generates num in the display (according DispDigits)
+ */
+void num2Digit(uint32_t num, dispDigit_t* digits);
+
+
+/*******************************************************************************
+ ******************************************************************************/
+
+#endif /* _DISPDIGITS_H_ */

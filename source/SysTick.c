@@ -44,11 +44,9 @@ bool SysTick_Init (void (*funcallback)(void)) {
 
 	SysTick->VAL = 0;		// SysTick value reset
 
-	SysTick->LOAD = 250000 - 1;	// 2.5ms @ 100MHz			// 12500000L - 1;		// 125ms @ 100MHz
+	SysTick->LOAD = 50000 - 1;	// 500us @ 100MHz
 
-//	NVIC_SetVector(SysTick_IRQn, (uint32_t)funcallback);				// Esta bien setearlo asi? (¿alocarlo en RAM?)		///////////////////
-
-	NVIC_EnableIRQ(SysTick_IRQn);		// Es necesario??? 			////////////
+	NVIC_EnableIRQ(SysTick_IRQn);
 
 	SysTickCallback = funcallback;
 
