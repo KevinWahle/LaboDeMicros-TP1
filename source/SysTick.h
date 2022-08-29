@@ -1,7 +1,7 @@
 /***************************************************************************//**
   @file     SysTick.h
   @brief    SysTick driver
-  @author   Nicolás Magliola
+  @author   Nicolï¿½s Magliola
  ******************************************************************************/
 
 #ifndef _SYSTICK_H_
@@ -18,7 +18,7 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-#define SYSTICK_ISR_FREQUENCY_HZ 1000U
+#define SYSTICK_ISR_FREQUENCY_HZ 500U
 
 
 /*******************************************************************************

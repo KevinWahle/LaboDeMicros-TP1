@@ -9,7 +9,6 @@
  ******************************************************************************/
 
 #include "timer.h"
-
 #include "SysTick.h"
 
 
@@ -17,11 +16,14 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+/* TODO: Medio rari */
+/*
 #if TIMER_TICK_MS != (1000U/SYSTICK_ISR_FREQUENCY_HZ)
 #error Las frecuencias no coinciden!!
 #endif // TIMER_TICK_MS != (1000U/SYSTICK_ISR_FREQUENCY_HZ)
+*/
 
-#define TIMER_DEVELOPMENT_MODE    1
+#define TIMER_DEVELOPMENT_MODE    0
 
 #define TIMER_ID_INTERNAL   0
 
@@ -31,13 +33,13 @@
  ******************************************************************************/
 
 typedef struct {
-	ttick_t             period;
-	ttick_t             cnt;
-    tim_callback_t      callback;
-    uint8_t             mode        : 1;
-    uint8_t             running     : 1;
-    uint8_t             expired     : 1;
-    uint8_t             unused      : 5;
+	ttick_t             period;           // ticks hasta expiración
+	ttick_t             cnt;              // ticks transcurridos
+  tim_callback_t      callback;
+  uint8_t             mode        : 1;
+  uint8_t             running     : 1;
+  uint8_t             expired     : 1;
+  uint8_t             unused      : 5;
 } timer_t;
 
 
@@ -78,9 +80,9 @@ void timerInit(void)
     static bool yaInit = false;
     if (yaInit)
         return;
-    
+
     SysTick_Init(timer_isr); // init peripheral
-    
+
     yaInit = true;
 }
 
@@ -106,27 +108,41 @@ void timerStart(tim_id_t id, ttick_t ticks, uint8_t mode, tim_callback_t callbac
     if ((id < timers_cant) && (mode < CANT_TIM_MODES))
 #endif // TIMER_DEVELOPMENT_MODE
     {
-        // ****** COMPLETAR ******
         // disable timer
+        timers[id].running=0b0;
+
         // configure timer
+        timers[id].period=ticks;
+        timers[id].cnt=ticks;
+        timers[id].callback=callback;
+        timers[id].mode=mode;
+        timers[id].expired=0b0;
+
         // enable timer
+        timers[id].running=0b1;
     }
 }
 
 
 void timerStop(tim_id_t id)
 {
-    // ****** COMPLETAR ******
     // Apago el timer
-    // y bajo el flag
+    timers[id].running = 0b0;
+
+    // y bajo el flag TODO: Que flag bajo?
+    timers[id].expired=0b0;
 }
 
 
 bool timerExpired(tim_id_t id)
 {
-    // ****** COMPLETAR ******
     // Verifico si expiró el timer
+    bool expired = timers[id].expired;
+
     // y bajo el flag
+    timers[id].expired= 0b0;
+
+    return expired;
 }
 
 
@@ -135,7 +151,7 @@ void timerDelay(ttick_t ticks)
     timerStart(TIMER_ID_INTERNAL, ticks, TIM_MODE_SINGLESHOT, NULL);
     while (!timerExpired(TIMER_ID_INTERNAL))
     {
-        // wait...
+        // wait ...
     }
 }
 
@@ -148,11 +164,27 @@ void timerDelay(ttick_t ticks)
 
 static void timer_isr(void)
 {
-    // ****** COMPLETAR ******
-    // decremento los timers activos
-    // si hubo timeout!
-    // 1) execute action: callback or set flag
-    // 2) update state
+    for(tim_id_t id=TIMER_ID_INTERNAL; id<timers_cant; id++){
+      // decremento los timers activos y si hubo timeout!
+      if(timers[id].running && !(--timers[id].cnt)){ //TODO: todo ok?
+
+        // 1) execute action: callback or set flag
+        if (timers[id].callback != NULL){
+          timers[id].callback();
+        }
+        timers[id].expired=0b1;
+
+        // 2) update state
+        if(timers[id].mode){
+        	timers[id].cnt=timers[id].period;
+        }
+        else{
+        	timers[id].running=0;
+        }
+      }
+
+
+    }
 }
 
 
