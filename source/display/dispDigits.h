@@ -96,6 +96,10 @@
 
 #define DISP_Z		DISP_2
 
+#define DISP_HYP	0b00000010		// Hyphen (-)
+
+#define DISP_UND	0b00010000		// Underscore (_)
+
 #define DISP_DIGITS_NUM		{DISP_0, DISP_1, DISP_2, DISP_3, DISP_4, DISP_5, DISP_6, DISP_7, DISP_8, DISP_9}
 
 #define DISP_DIGITS_ALPH {DISP_A, DISP_B, DISP_C, DISP_D, DISP_E, DISP_F, DISP_G, DISP_H, DISP_I, DISP_J, DISP_K, DISP_L, DISP_M, DISP_N, DISP_O, DISP_P, DISP_Q, DISP_R, DISP_S, DISP_T, DISP_U, DISP_V, DISP_W, DISP_X, DISP_Y, DISP_Z}
@@ -118,6 +122,13 @@ typedef uint8_t dispDigit_t;
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
+
+/**
+ * @brief Get the digit that corresponds to the character given.
+ * @param c: the character.
+ * @return the digit that represents c in the display (according DispDigits, DISP_OFF if unavailable)
+ */
+dispDigit_t char2Digit(char c);
 
 /**
  * @brief Get an array of digits that generate the string provided.

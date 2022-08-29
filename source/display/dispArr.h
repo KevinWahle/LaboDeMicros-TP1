@@ -8,6 +8,12 @@
 #ifndef _DISPARR_H_
 #define _DISPARR_H_
 
+/*******************************************************************************
+ * INCLUDE HEADER FILES
+ ******************************************************************************/
+
+#include <stdint.h>
+#include <stdbool.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -41,7 +47,7 @@ void dispArrShow(char* str);
 
 
 /**
- * @brief Show the first DISP_COUNT characters of the string given in the display for the time given
+ * @brief Show the first DISP_COUNT characters of the string given in the display for the time given, then clear the display
  * @param str: string to show
  * @param time: the time in milliseconds
  */
@@ -52,7 +58,7 @@ void dispArrShowForTime(char* str, uint32_t time);
  * @brief Show the first DISP_COUNT digits of the number given in the display
  * @param num: the num to show
  */
-void dispArrShowNum(uit32_t num);
+void dispArrShowNum(uint32_t num);
 
 
 /**
@@ -70,11 +76,23 @@ void dispArrSlideLoop(char* str);
 
 
 /**
- * @brief Show the first DISP_COUNT characters of the string given and select once to blink periodically
+ * @brief Show the first DISP_COUNT characters of the string given and choose one to be selected
+ * @param str: string to show
+ * @param sel: index of the digit to select [0 - (DISP_COUNT-1)]
+ */
+void dispArrShowSelect(char* str, uint8_t sel);
+
+/**
+ * @brief Show the first DISP_COUNT characters of the string given and select one to blink periodically
  * @param str: string to show
  * @param sel: index of the digit to blink [0 - (DISP_COUNT-1)]
  */
 void dispArrBlink(char* str, uint8_t sel);
+
+/**
+ * @brief Clear the entire display
+ */
+void dispArrClear();
 
 /*******************************************************************************
  ******************************************************************************/

@@ -10,8 +10,11 @@
 
 #include "dispArr.h"
 #include "dispDigits.h"
+#include "timer/timer.h"
 #include "gpio.h"
-#include "SysTick.h"
+#include <stdlib.h>
+#include <string.h>
+
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -28,7 +31,8 @@
 #define D_SEGMENT	PORTNUM2PIN(PC, 9)
 #define E_SEGMENT	PORTNUM2PIN(PC, 8)
 #define F_SEGMENT	PORTNUM2PIN(PC, 1)
-#define G_SEGMENT	PORTNUM2PIN(PB, 19)
+//#define G_SEGMENT	PORTNUM2PIN(PB, 19)
+#define G_SEGMENT	PORTNUM2PIN(PE, 26)
 #define DP_SEGMENT	PORTNUM2PIN(PB, 18)
 
 #define SEGMENT_ARR	{A_SEGMENT, B_SEGMENT, C_SEGMENT, D_SEGMENT, E_SEGMENT, F_SEGMENT, G_SEGMENT, DP_SEGMENT}
@@ -55,7 +59,7 @@
 #define BLINK_TIME	500	// 1/2 period of blink (milliseconds)
 
 
-#define PISR_TIME	1	// Time of the PISR (milliseconds)
+#define PISR_TIME	0.5	// Time of the PISR (milliseconds)
 
 
 #define DISP_CYC	(DISP_TIME/PISR_TIME)
@@ -74,6 +78,7 @@
 
 #define LIMIT(val, min, max)	( ( (val) >= (min) ) && ( (val) <= (max) ) ? (val) : ( (val) < (min) ) ? (min) : (max))
 
+#define MS2CYC(ms)	((ms)/PISR_TIME)	// Converts milliseconds to PISR cycles
 
 
 /*******************************************************************************
@@ -82,38 +87,58 @@
 
 typedef pin_t dispSegmentsPins_t[SEGMENTS_COUNT];
 
-enum DISPLAY_MODES {STAND_BY, SHOW, TIMED, LOOP, ONCE};
+typedef enum {SHOW, TIMED, LOOP, ONCE, SELECT, BLINK} DISPLAY_MODES;
 
 /*******************************************************************************
  * GLOBAL VARIABLES
  ******************************************************************************/
 
+// Pin assignment
 static dispSegmentsPins_t segments = SEGMENT_ARR;
 
 static pin_t control[SEL_PIN_COUNT] = SEL_ARR;
 
-//static dispDigit_t digitArr[ALPH_COUNT] = DISP_DIGITS_ALPH;
 
-static dispDigit_t actualDigits[DISP_COUNT];
+// Display control
 
-static dispDigit_t actualChar;
+static dispDigit_t actualDigits[DISP_COUNT];	// Array to show on displays
+static uint8_t actualDisp = 0;		// Index of array to update
 
-static DISPLAY_MODES actualMode = STAND_BY;
+static dispDigit_t selectedChar;		// Save char to blink
+static uint8_t selectedIndex;
+
+static dispDigit_t* slideDigits = NULL;	// Dynamic array to allocate digits to slide
+static uint8_t slideLen;
+static uint8_t slideIndex;
 
 
-//static dispDigit_t totalDigits[] = {DISP_H, DISP_O, DISP_L, DISP_A, DISP_OFF, DISP_T, DISP_P, DISP_OFF, DISP_1};
+static DISPLAY_MODES actualMode = SHOW;
 
-static dispDigit_t totalDigits[43];
-
-
-static uint8_t actualDisp = 0;
 
 static uint8_t actualBright = MAX_BRIGHT;
+
+
+// Timers
+
+static uint32_t dispCont = DISP_CYC-1;		// Counter for display update
+static uint32_t transCont = TRANS_CYC-1;	// Counter for slide
+static uint32_t timedShowCont;				// Counter for TIMED mode
+static uint32_t blinkCont = BLINK_CYC-1;	// Timer for BLINK mode
+static uint32_t dutyCont = DISP_CYC-1;		// Counter of display show time for brightness control
+
+
+
+// Flags
+
+static bool blinkOff = false;
+static bool dutyOff = false;
 
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
+
+static void dispPISR();
 
 /**
  * @brief Set the control output to select the desired display. Control is assumed to be a MUX.
@@ -123,7 +148,6 @@ static uint8_t actualBright = MAX_BRIGHT;
  */
 static void dispArrSelect(uint8_t sel);
 
-
 /**
  * @brief Display the desired value in the display.
  * @param segments[8]: pin array with the pins of the segments (according PORTNUM2PIN).
@@ -131,11 +155,17 @@ static void dispArrSelect(uint8_t sel);
  */
 static void dispShow(dispSegmentsPins_t segments, dispDigit_t digit);
 
-static void dispPISR();
-
 static void rollDisplay();
 
-static void loopLetters(uint8_t length);
+static void loopDigits();
+
+static void string2DispArr(char* str);
+
+// Copy the string to slideDigits after allocation
+static void retrieveSlideString(char* str);
+
+
+static void setMode(DISPLAY_MODES mode);
 
 /*******************************************************************************
  *******************************************************************************
@@ -149,22 +179,25 @@ static void loopLetters(uint8_t length);
  */
 bool dispArrInit() {
 
+	// Set segments as outputs
 	for (int i = 0; i < SEGMENTS_COUNT; i++) {
 		gpioMode(segments[i], OUTPUT);
 	}
 
+	// Set control pins as outputs
 	for (int i = 0; i < SEL_PIN_COUNT; i++) {
 		gpioMode(control[i], OUTPUT);
 	}
 
+	dispArrClear();
 
+	// Init timer for PISR
+	timerInit();
+	timerStart(timerGetId(), TIMER_MS2TICKS(PISR_TIME), TIM_MODE_PERIODIC, dispPISR);
 
-/////////////////  TEST  /////////////////////////
-	string2Digit("Este es el TP 1 de labo de micros", totalDigits);
-	num2Digit(1234567890, totalDigits+33);
+//	SysTick_Init(dispPISR);
 
-	//TODO: Activar interrupciones periodicas con timer
-	return SysTick_Init(dispPISR);
+	return true;
 
 }
 
@@ -184,6 +217,10 @@ void dispSetBright(uint8_t bright) {
  */
 void dispArrShow(char* str) {
 
+	setMode(SHOW);
+
+	string2DispArr(str);
+
 }
 
 
@@ -194,6 +231,12 @@ void dispArrShow(char* str) {
  */
 void dispArrShowForTime(char* str, uint32_t time) {
 
+	setMode(TIMED);
+
+	string2DispArr(str);
+
+	timedShowCont = MS2CYC(time)-1;
+
 }
 
 
@@ -201,7 +244,7 @@ void dispArrShowForTime(char* str, uint32_t time) {
  * @brief Show the first DISP_COUNT digits of the number given in the display
  * @param num: the num to show
  */
-void dispArrShowNum(uit32_t num) {
+void dispArrShowNum(uint32_t num) {
 
 }
 
@@ -212,6 +255,14 @@ void dispArrShowNum(uit32_t num) {
  */
 void dispArrSlideOnce(char* str) {
 
+	setMode(ONCE);
+
+	retrieveSlideString(str);
+
+	transCont = TRANS_CYC-1;	// Timer reset
+
+	slideIndex = 0;		// Index reset
+
 }
 
 
@@ -220,6 +271,29 @@ void dispArrSlideOnce(char* str) {
  * @param str: string to show
  */
 void dispArrSlideLoop(char* str) {
+
+	setMode(LOOP);
+
+	retrieveSlideString(str);
+
+	transCont = TRANS_CYC-1;	// Timer reset
+
+	slideIndex = 0;		// Index reset
+}
+
+
+/**
+ * @brief Show the first DISP_COUNT characters of the string given and choose one to be selected
+ * @param str: string to show
+ * @param sel: index of the digit to select [0 - (DISP_COUNT-1)]
+ */
+void dispArrShowSelect(char* str, uint8_t sel) {
+
+	setMode(SELECT);
+
+	string2DispArr(str);
+
+	actualDigits[LIMIT(sel, 0, DISP_COUNT)] |= DISP_DP;		// Turn on DP on selected digit
 
 }
 
@@ -231,6 +305,25 @@ void dispArrSlideLoop(char* str) {
  */
 void dispArrBlink(char* str, uint8_t sel) {
 
+	setMode(BLINK);
+
+	string2DispArr(str);
+
+	selectedIndex = LIMIT(sel, 0, DISP_COUNT);
+
+	selectedChar = actualDigits[selectedIndex];
+
+	// Reset of timers and flags
+	blinkCont = BLINK_CYC-1;
+	blinkOff = false;
+
+}
+
+
+void dispArrClear() {
+	for (int i = 0; i < DISP_COUNT; i++) {
+		actualDigits[i] = DISP_OFF;
+	}
 }
 
 /*******************************************************************************
@@ -241,61 +334,83 @@ void dispArrBlink(char* str, uint8_t sel) {
 
 static void dispPISR() {
 
-	//TODO: Chequear esto
-
-	static uint32_t dispCont = DISP_CYC;
-	static uint32_t transCont = TRANS_CYC;
-	static uint32_t blinkCont = BLINK_CYC;
-	static uint32_t dutyCont = ((double)(actualBright/MAX_BRIGHT))*DISP_CYC;	// Counter of display show time
-
-	if (!dutyCont) {
-		if (actualDigits[actualDisp] != DISP_OFF) {
-			dispShow(DISP_OFF, actualDisp);
-		}
-	}
-	else {
-		dutyCont--;
-	}
-
-	if (!dispCont) {
-		rollDisplay();
-		dispCont = DISP_CYC;
-		dutyCont = ((double)(actualBright/MAX_BRIGHT))*DISP_CYC;	// Duty reset
-	}
-
 	switch (actualMode) {
-		case STAND_BY:
-			break;
-
 		case SHOW:
+			// Do nothing
 			break;
 
 		case TIMED:
+
+			if (!timedShowCont) {	// Time elapsed
+				dispArrClear();			// Clear display
+				actualMode = SHOW;		// and set to show mode
+			}
+			else {
+				timedShowCont--;
+			}
+
 			break;
 
 		case LOOP:
+		case ONCE:
 
 			if (!transCont) {
-				transCont = TRANS_CYC;
-				loopLetters(43);
+				transCont = TRANS_CYC-1;
+				loopDigits();
 			}
 			else {
 				transCont--;
-				//TODO: Reset si se cambia de modo o llama de vuelta
 			}
 
 			break;
 
-		case ONCE:
+		case SELECT:
+			// Do nothing
+			break;
+
+		case BLINK:
+
+			if (!blinkCont) {
+
+				actualDigits[selectedIndex] = blinkOff ? DISP_OFF : selectedChar;	// Change selected digit
+
+				blinkOff = !blinkOff;
+
+				blinkCont = BLINK_CYC-1;
+			}
+			else {
+				blinkCont--;
+			}
 			break;
 
 		default:
 			break;
 	}
 
+	// Display rolling and brightness control.
 
-	dispCont--;
-//	blinkCont--;
+	if (!dispCont) {
+		rollDisplay();	// actualDisp increment
+		dispCont = DISP_CYC-1;
+
+		dutyCont = ((double)actualBright/MAX_BRIGHT)*DISP_CYC-1;	// Duty reset
+		dutyOff = false;
+	}
+	else {
+		dispCont--;
+	}
+
+	if (!dutyCont) {
+		if (!dutyOff) {
+			dispShow(segments, DISP_OFF);		// Turn off actual display
+			dutyOff = true;		// Dont do it again until next display
+		}
+	}
+	else {
+		dutyCont--;
+	}
+
+
 
 }
 
@@ -335,19 +450,69 @@ static void rollDisplay() {
 }
 
 
-void loopLetters(uint8_t length) {
-
-	static uint8_t index = 0;
+static void loopDigits() {
 
 	for (int i = 0; i < DISP_COUNT-1; i++) {
 		actualDigits[i] = actualDigits[i+1];	// Roll
 	}
 
-	if (index < length) actualDigits[DISP_COUNT-1] = totalDigits[index];	// Enter last digit and increment
+	if (slideIndex < slideLen) actualDigits[DISP_COUNT-1] = slideDigits[slideIndex];	// Enter last digit and increment
 	else actualDigits[DISP_COUNT-1] = DISP_OFF;
 
-	index++;
-	index %= length+DISP_COUNT;
+	slideIndex++;
+
+	if (slideIndex >= slideLen+DISP_COUNT) {
+		if (actualMode == ONCE) {
+			actualMode = SHOW;
+		}
+		else if (actualMode == LOOP) {
+			slideIndex = 0;
+		}
+		// TODO: else: throw error
+	}
+
+}
+
+static void setMode(DISPLAY_MODES mode) {
+
+	actualMode = mode;
+
+}
+
+// From string to actualDigits (clamper)
+static void string2DispArr(char* str) {
+
+	for(uint8_t i = 0; i < DISP_COUNT; i++) {
+
+		if (*str) {
+			actualDigits[i] = char2Digit(*(str++));
+		}
+		else {		// str length < DISP_COUNT
+			actualDigits[i] = DISP_OFF;
+		}
+
+	}
+
+}
+
+// Copy the string to slideDigits after allocation
+static void retrieveSlideString(char* str) {
+
+	slideLen = 0;
+
+	while(*(str + (slideLen++)));	// Get str length
+
+	free(slideDigits);	// free before malloc
+
+	slideDigits = (dispDigit_t*)malloc(sizeof(dispDigit_t)*(slideLen+1));	// One more for terminator
+
+	if (slideDigits) {
+		memcpy(slideDigits, str, slideLen+1);
+	}
+	else {
+		//TODO: throw exception????
+	}
+
 }
 
 /*******************************************************************************

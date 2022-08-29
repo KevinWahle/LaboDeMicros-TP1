@@ -56,6 +56,30 @@ static const dispDigit_t digitsAlph[] = DISP_DIGITS_ALPH;
  *******************************************************************************
  ******************************************************************************/
 
+/**
+ * @brief Get the digit that corresponds to the character given.
+ * @param c: the character.
+ * @return the digit that represents c in the display (according DispDigits, DISP_OFF if unavailable)
+ */
+dispDigit_t char2Digit(char c) {
+	if (c >= '0' && c <= '9') {
+		return digitsNum[c-'0'];
+	}
+	else if (c>= 'a' && c <= 'z') {
+		return digitsAlph[c-'a'];
+	}
+	else if (c >= 'A' && c <= 'Z') {
+		return digitsAlph[c-'A'];
+	}
+	else if (c == '-') {
+		return DISP_HYP;
+	}
+	else if (c == '_') {
+		return DISP_UND;
+	}
+
+	return DISP_OFF;
+}
 
 /**
  * @brief Get an array of digits that generate the string provided.
@@ -64,18 +88,8 @@ static const dispDigit_t digitsAlph[] = DISP_DIGITS_ALPH;
  */
 void string2Digit(char* s, dispDigit_t* digits) {
 	while (*s) {	// Continue until terminator
-		char c = *s;
 
-		if (c >= '0' && c <= '9') {
-			*digits = digitsNum[c-'0'];
-		}
-		else if (c>= 'a' && c <= 'z') {
-			*digits = digitsAlph[c-'a'];
-		}
-		else if (c >= 'A' && c <= 'Z') {
-			*digits = digitsAlph[c-'A'];
-		}
-		else *digits = DISP_OFF;
+		*digits = char2Digit(*s);
 
 		s++;			// Next char
 		digits++;		// and next digit
