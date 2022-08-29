@@ -129,7 +129,7 @@ void timerStop(tim_id_t id)
     // Apago el timer
     timers[id].running = 0b0;
 
-    // y bajo el flag TODO: Que flag bajo?
+    // y bajo el flag
     timers[id].expired=0b0;
 }
 
@@ -166,7 +166,7 @@ static void timer_isr(void)
 {
     for(tim_id_t id=TIMER_ID_INTERNAL; id<timers_cant; id++){
       // decremento los timers activos y si hubo timeout!
-      if(timers[id].running && !(--timers[id].cnt)){ //TODO: todo ok?
+      if(timers[id].running && !(--timers[id].cnt)){
 
         // 1) execute action: callback or set flag
         if (timers[id].callback != NULL){
