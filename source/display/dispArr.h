@@ -82,12 +82,14 @@ void dispArrSlideLoop(char* str);
  */
 void dispArrShowSelect(char* str, uint8_t sel);
 
+
 /**
  * @brief Show the first DISP_COUNT characters of the string given and select one to blink periodically
  * @param str: string to show
  * @param sel: index of the digit to blink [0 - (DISP_COUNT-1)]
  */
 void dispArrBlink(char* str, uint8_t sel);
+
 
 /**
  * @brief Clear the entire display

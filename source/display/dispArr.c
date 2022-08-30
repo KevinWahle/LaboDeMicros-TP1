@@ -15,7 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
@@ -31,13 +30,11 @@
 #define D_SEGMENT	PORTNUM2PIN(PC, 9)
 #define E_SEGMENT	PORTNUM2PIN(PC, 8)
 #define F_SEGMENT	PORTNUM2PIN(PC, 1)
-//#define G_SEGMENT	PORTNUM2PIN(PB, 19)
-#define G_SEGMENT	PORTNUM2PIN(PE, 26)
+#define G_SEGMENT	PORTNUM2PIN(PB, 19)
 #define DP_SEGMENT	PORTNUM2PIN(PB, 18)
 
 #define SEGMENT_ARR	{A_SEGMENT, B_SEGMENT, C_SEGMENT, D_SEGMENT, E_SEGMENT, F_SEGMENT, G_SEGMENT, DP_SEGMENT}
 
-#define SEGMENTS_COUNT	8
 
 	// Selection (MUX) pins
 
@@ -195,8 +192,6 @@ bool dispArrInit() {
 	timerInit();
 	timerStart(timerGetId(), TIMER_MS2TICKS(PISR_TIME), TIM_MODE_PERIODIC, dispPISR);
 
-//	SysTick_Init(dispPISR);
-
 	return true;
 
 }
@@ -246,6 +241,26 @@ void dispArrShowForTime(char* str, uint32_t time) {
  */
 void dispArrShowNum(uint32_t num) {
 
+	setMode(SHOW);
+
+	uint32_t div = 10;
+	uint8_t len = 1;
+
+	while(num/div) {
+		len++;
+		div *= 10;
+	}
+
+	if (len > DISP_COUNT) {
+		for (int i=0; i < DISP_COUNT; i++) {
+			div /= 10;
+		}
+		num2Digit(num/div, actualDigits);		// Keep first 4 digits, discard the rest
+	}
+	else {
+		dispArrClear();									// Clear Array
+		num2Digit(num, actualDigits+DISP_COUNT-len);	// and write to end of array
+	}
 }
 
 
@@ -409,8 +424,6 @@ static void dispPISR() {
 	else {
 		dutyCont--;
 	}
-
-
 
 }
 
