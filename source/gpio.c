@@ -19,6 +19,7 @@
 
 #define SIM_PORT_MASKS	{SIM_SCGC5_PORTA_MASK, SIM_SCGC5_PORTB_MASK, SIM_SCGC5_PORTC_MASK, SIM_SCGC5_PORTD_MASK, SIM_SCGC5_PORTE_MASK}
 
+#define BUS_CLOCK 50e6
 
 /*******************************************************************************
  * GLOBAL VARIABLES
@@ -40,6 +41,18 @@ pinIrqFun_t portIrqFunc[5][32];
                         GLOBAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
+void setDigitalFilter(pin_t pin){
+	uint8_t pinn = PIN2NUM(pin);
+
+	uint8_t portn = PIN2PORT(pin);
+
+	PORT_Type* port = portPtr[portn];
+	port->DFCR = 1; // LPO clock
+	port->DFWR = 0; // filter Lenght = 0
+	port->DFER |= PORT_DFER_DFE(pinn);
+
+}
+
 
 /**
  * @brief Configures the specified pin to behave either as an input or an output
