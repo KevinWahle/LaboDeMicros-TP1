@@ -32,6 +32,7 @@ struct state_diagram_edge{
 STATE *fsm_interprete(STATE * p_tabla_estado_actual, event_t evento_actual);
 
 extern STATE ID_state[];
+STATE ID_show[]; 
 extern STATE brillo_state[];
 extern STATE IDError_state[];
 extern STATE Pass_state[];
@@ -50,11 +51,17 @@ STATE ID_state[] = {
     {ENCODER_LEFT, ID_state, previous_id},
     {ENCODER_RIGHT, ID_state, upper_id}, 
     {ENCODER_PRESS, ID_state, next_id}, 
-    {ID_READY, ID_state, check_id},
+    {ID_READY, ID_show, setIDTimer},
+    {TIMEOUT, ID_state, id_init},
+    {NULL_EVENT, ID_state, doNothing}
+};  
+
+STATE ID_show[] = {
+    {TIMEOUT, ID_show, check_id},          
     {WRONG_ID, IDError_state, errorScreen},     
     {ID_OK, Pass_state, pass_init},
     {NULL_EVENT, ID_state, doNothing}
-};  // REVISAR: Agregar tema timeout
+}; 
 
 STATE brillo_state[] = {
     {ENCODER_LEFT, brillo_state, dec_bright},  
@@ -77,6 +84,7 @@ STATE Pass_state[] = {
     {ADMIN_USER, AdminMenu_state, init_admin_menu},
     {NORMAL_USER, UserMenu_state, init_menu},
     {BACK, ID_state, id_init}, 
+    {TIMEOUT, Pass_state, pass_init},
     {NULL_EVENT, Pass_state, doNothing}
 };
 
