@@ -1,8 +1,7 @@
-/*******************************************************************************
-  @file     +FSM_routines.h+
-  @brief    +Funciones que conforman las rutas de acción entre los diferentes
-            estados de la FSM.+
-  @author   +Grupo 3+
+/******************************************************************************
+  @file     userDataBase.c
+  @brief    Base de datos de usuarios
+  @author   Fran Basili
  ******************************************************************************/
 
 #ifndef _FSM_ROUTINES_H_
@@ -11,7 +10,7 @@
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-
+#include "encoder_hal.h"
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -89,7 +88,7 @@ void next_pass();
 /**
  * @brief Verifica que la password se corresponda 
 */
-void check_pass();  // la pass es la indicada                               //SCHEMBE
+void check_pass();
 
 /**
  * @brief Reinicia el selector 
@@ -147,7 +146,6 @@ void save_pass();
 */
 void add_user();
 
-// TODO:
 /**
  * @brief Arranca la lista de usuarios para saber cual borrar
 */
@@ -176,10 +174,27 @@ void encoderCallback(ENC_STATE state);
 /**
  * @brief Callback del Enconder
 */
-void doNothing() {
-    return;
-}
+void doNothing();
 
+/**
+ * @brief Inicializa el timer
+*/
+void setIDTimer();
+
+/**
+ * @brief Pide id de timer
+*/
+void setUpIDTimer();
+
+/**
+ * @brief Callback Tarjeta Magnética
+ */
+void cardCb (bool state, const char* mydata);
+
+/**
+ * @brief enciende el timer de inactividad
+ */
+void inactivityTimer();
 /*******************************************************************************
  ******************************************************************************/
 

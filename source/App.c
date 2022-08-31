@@ -11,6 +11,9 @@
 #include "FSM_table.h"
 #include "FSM_routines.h"
 #include "event_queue/event_queue.h"
+#include "display/dispArr.h"
+#include "magtek/MagtekWrapper.h"
+#include "encoder_hal.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -37,7 +40,14 @@ static STATE* p_tabla_estado_actual;
 /* Función que se llama 1 vez, al comienzo del programa */
 void App_Init (void)
 {
+	timerInit();
+	Card2Init(cardCb);
+	encoderInit(encoderCallback);
+	dispArrInit();
+
 	p_tabla_estado_actual = ID_state;
+	id_init();
+	setUpIDTimer();
 }
 
 /* Función que se llama constantemente en un ciclo infinito */

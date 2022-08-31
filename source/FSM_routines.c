@@ -13,6 +13,8 @@
 #include "event_queue/event_queue.h"
 #include "encdec.h"
 #include "const.h"
+#include "userDatabase.h"
+#include "timer/timer.h"
 #include <stdio.h>
 
 /*******************************************************************************
@@ -26,6 +28,7 @@
 static uint8_t actual_id[IDSIZE]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
 static uint8_t actual_pass[PASSMAX]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
 static uint8_t digitCounter;
+static tim_id_t idTimer;
 
 MENU_ITEM admin_menu[] = {  
                             {.option = "CHANGE", .ID = CHANGE_ID},
@@ -58,7 +61,7 @@ void updateMenuDis(char* word);
 /**********************************************************
 ************************  ID  ***************************
 **********************************************************/
-void id_init(vod){
+void id_init(){
     for(int i=0; i<IDSIZE; i++)
     {
         actual_id[i]=NULLCHAR;
@@ -99,6 +102,33 @@ void next_id(){
     update_display(actual_id, digitCounter, 0);
 }
 
+void check_id(void){
+
+    if(internal_check_id(actual_id))
+        add_event(ID_OK);
+    else
+        add_event(WRONG_ID);
+} 
+
+void used_id(){
+    if(internal_used_id(actual_id))
+        add_event(WRONG_ID);
+    else
+        add_event(ID_OK);
+}  
+
+void setUpIDTimer(){
+    idTimer=timerGetId();
+}
+
+void setIDTimer(){
+    timerStart(idTimer, TIMER_MS2TICKS(2000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
+    dispArrSlideOnce(actual_id);
+}
+
+void setIDTimer_cb(){
+    add_event(TIMEOUT);
+}
 /**********************************************************
 ************************  PASSWORD  ***********************
 **********************************************************/
@@ -142,6 +172,22 @@ void next_pass(){
     update_display(actual_pass, digitCounter, 1);
 }
 
+void check_pass(){
+    if(internal_check_pass(actual_id, actual_pass))
+        add_event(PASS_OK);
+    else
+        add_event(WRONG_PASS);
+}  
+
+void save_pass(){
+    if(internal_save_pass(actual_id, actual_pass))
+        add_event(BACK);
+}
+
+void add_user(){
+    if(internal_add_user(actual_id, actual_pass))
+        add_event(BACK);
+} 
 /**********************************************************
 ************************  MENU  ***************************
 **********************************************************/
@@ -254,6 +300,20 @@ void encoderCallback(ENC_STATE state){
     }
 }
 
+void cardCb (bool state, const char* mydata){
+    if(state){
+        for(uint8_t digit=0; digit<IDSIZE; digit++)
+        {
+            actual_id[digit]= (uint8_t)mydata[digit];
+        }
+        add_event(ID_READY);
+    }
+}
+
+void inactivityTimer(){
+    timerStart(idTimer, TIMER_MS2TICKS(10000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
+
+}
 /**********************************************************
 *********************  DISPLAY   **************************
 **********************************************************/
@@ -307,7 +367,6 @@ void update_display(int* arr, int counter, bool password) {
 	dispArrSelect(dispIndex);
 
 }
-
 
 void updateMenuDis(char* word) {
 	dispArrSlideLoop(word);

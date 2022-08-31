@@ -21,6 +21,7 @@
 #define USER_MENU_LEN	2
 #define PASSMAX	5
 #define NULLCHAR 10
+#define MAXUSER	100
 #define ERROR_MSG	"Error de autorizacion"
 
 enum EVENTS {
@@ -42,7 +43,6 @@ enum EVENTS {
 	ADD_USER,	// evento que sale del menu
 	ADD,		// evento en el que se crea el usuario
 	DEL_USER,
-	DELETE,
 
 	// USER TYPES
 	ADMIN_USER,
