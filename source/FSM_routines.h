@@ -11,6 +11,7 @@
  * INCLUDE HEADER FILES
  ******************************************************************************/
 #include "encoder_hal.h"
+#include "stdint.h"
 
 /*******************************************************************************
  * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
@@ -195,6 +196,11 @@ void cardCb (bool state, const char* mydata);
  * @brief enciende el timer de inactividad
  */
 void inactivityTimer();
+
+/**
+ * @brief Muestra en el display ints
+ */
+void updateListDis(uint8_t* id);
 /*******************************************************************************
  ******************************************************************************/
 

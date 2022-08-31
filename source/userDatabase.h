@@ -62,7 +62,7 @@ bool internal_check_pass(uint8_t * id, uint8_t * password);
 /**
  * @brief checkea si el id ya existe
 */
-void internal_used_id(uint8_t * id);
+bool internal_used_id(uint8_t * id);
 
 /**
  * @brief Guarda la password en la base de datos
@@ -73,6 +73,16 @@ bool internal_save_pass(uint8_t * id, uint8_t * password);
  * @brief Carga el usuario en la base de datos
 */
 bool internal_add_user(uint8_t * id, uint8_t * pass);
+
+/**
+ * @brief true si el usuario es admin, 0 sino.
+*/
+bool isAdmin(uint8_t* id);
+
+/**
+ * @brief true si el usuario es admin, 0 sino.
+*/
+void init_Database();
 /*******************************************************************************
  ******************************************************************************/
 

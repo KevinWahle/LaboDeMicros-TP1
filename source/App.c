@@ -10,10 +10,13 @@
 #include "const.h"
 #include "FSM_table.h"
 #include "FSM_routines.h"
+#include "userDatabase.h"
 #include "event_queue/event_queue.h"
 #include "display/dispArr.h"
 #include "magtek/MagtekWrapper.h"
 #include "encoder_hal.h"
+#include "LEDMux/LEDMux.h"
+#include "timer/timer.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -43,7 +46,9 @@ void App_Init (void)
 	timerInit();
 	Card2Init(cardCb);
 	encoderInit(encoderCallback);
+	LEDMuxInit();
 	dispArrInit();
+	init_Database();
 
 	p_tabla_estado_actual = ID_state;
 	id_init();
@@ -54,13 +59,6 @@ void App_Init (void)
 void App_Run (void)
 {
 	event_t evento = get_next_event();  // Tomo un nuevo evento de la cola de eventos.
-	
-	#ifdef DEBUG
-		if (evento != NULL_EVENT){
-		printf("El nuevo evento es: %d \n", evento);
-		}
-	#endif
-
 	p_tabla_estado_actual = fsm_interprete(p_tabla_estado_actual, evento);  // Actualizo el estado
 }
 
@@ -74,10 +72,6 @@ void App_Run (void)
 
 STATE *fsm_interprete(STATE * p_tabla_estado_actual, event_t evento_actual)
 {
-    #ifdef DEBUG
-        printf("Evento: %d. \n", evento_actual); // Para debuggear
-    #endif  //DEBUG
-    
     while ((p_tabla_estado_actual -> evento) != evento_actual && (p_tabla_estado_actual -> evento) !=NULL_EVENT){
         ++p_tabla_estado_actual;
     } 

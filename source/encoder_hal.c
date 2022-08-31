@@ -2,9 +2,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "gpio.h"
-#include "timer.h"
+#include "timer/timer.h"
 
-typedef enum {IDLE, LEFT_TRANS, RIGHT_TRANS, C1, C2, C3} SM_ENCODER; //States of the machine
+typedef enum {IDLE_ENCODER, LEFT_TRANS, RIGHT_TRANS} SM_ENCODER;
+
+typedef enum {IDLE_BUTTON ,C1, C2, C3} SM_BUTTON; //States of the machine
 
 static pin_t rcha = PORTNUM2PIN(PD, 0);
 static pin_t rchb = PORTNUM2PIN(PD, 2);
@@ -49,11 +51,11 @@ static void smEnconder(void){
 
 	gpioWrite(PORTNUM2PIN(PD, 1), HIGH);
 
-	static SM_ENCODER state_rotate = IDLE;
-	static SM_ENCODER state_button = IDLE;
+	static SM_ENCODER state_rotate = IDLE_ENCODER;
+	static SM_BUTTON state_button = IDLE_BUTTON;
 
 	switch(state_rotate){
-	case IDLE:
+	case IDLE_ENCODER:
 		if( ( !gpioRead(rcha) && gpioRead(rchb) ) || ( gpioRead(rcha) && !gpioRead(rchb) )){
 			if(!gpioRead(rcha))
 				state_rotate = LEFT_TRANS;
@@ -63,20 +65,20 @@ static void smEnconder(void){
 		break;
 	case LEFT_TRANS:
 		if(gpioRead(rcha) && gpioRead(rchb)){
-			state_rotate = IDLE;
+			state_rotate = IDLE_ENCODER;
 			funCb(ENC_LEFT);
 		}
 		break;
 	case RIGHT_TRANS:
 		if(gpioRead(rcha) && gpioRead(rchb)){
-			state_rotate = IDLE;
+			state_rotate = IDLE_ENCODER;
 			funCb(ENC_RIGHT);
 		}
 		break;
 	}
 
 	switch(state_button){
-	case IDLE:
+	case IDLE_BUTTON:
 		if(!gpioRead(button)){
 			state_button = C1;
 			timerStart(longPressedTimerID, TIMER_MS2TICKS(5000), TIM_MODE_SINGLESHOT, cb);
@@ -86,11 +88,11 @@ static void smEnconder(void){
 	case C1:
 		if(gpioRead(button)){
 			if(timerExpired(longPressedTimerID)){
-				state_button = IDLE;
+				state_button = IDLE_BUTTON;
 				funCb(ENC_LONG);
 			}
 			else if(timerExpired(doublePressedTimerID)){
-				state_button = IDLE;
+				state_button = IDLE_BUTTON;
 				funCb(ENC_CLICK);
 			}
 			else{
@@ -101,7 +103,7 @@ static void smEnconder(void){
 		break;
 	case C2:
 		if(timerExpired(doublePressedTimerID))
-			state_button = IDLE;
+			state_button = IDLE_BUTTON;
 		if(!gpioRead(button)){
 			state_button = C3;
 			timerStart(longPressedTimerID, TIMER_MS2TICKS(5000), TIM_MODE_SINGLESHOT, cb);
@@ -110,15 +112,15 @@ static void smEnconder(void){
 	case C3:
 		if(gpioRead(button)){
 			if(timerExpired(longPressedTimerID)){
-				state_button = IDLE;
+				state_button = IDLE_BUTTON;
 				funCb(ENC_LONG);
 			}
 			else if(!timerExpired(doublePressedTimerID)){
-				state_button = IDLE;
+				state_button = IDLE_BUTTON;
 				funCb(ENC_DOUBLE);
 			}
 			else{
-				state_button = IDLE;
+				state_button = IDLE_BUTTON;
 				funCb(ENC_CLICK);
 			}
 		}
