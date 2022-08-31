@@ -22,6 +22,7 @@
 #define CLK PORTNUM2PIN(PC,9)
 #define DATA PORTNUM2PIN(PC,8)
 #define ENABLE PORTNUM2PIN(PC,0)
+//#define TESTPIN PORTNUM2PIN(PB,18)
 
 #define CHAR_0 		0b00001
 #define CHAR_1 		0b10000
@@ -54,7 +55,7 @@ typedef struct {
 }buffer;
 
 
-enum {SS, PAN, FS, ADDIT, DISCR, ES, ERROR};
+enum {SS, PAN, FS, ADDIT, DISCR, ES, ERROR, NOTDATA};
 
 
 /*******************************************************************************
@@ -110,6 +111,8 @@ bool CardInit(cardCb funCb){
 	gpioMode (CLK,INPUT);		// Set GPIO
 	gpioMode (DATA,INPUT);
 	gpioMode (ENABLE,INPUT);
+	//gpioMode (TESTPIN,OUTPUT);
+
 
 	gpioIRQ(CLK, GPIO_IRQ_MODE_FALLING_EDGE, clkCb);	//Set clock falling edge interruption
 
@@ -132,6 +135,8 @@ bool CardInit(cardCb funCb){
  *******************************************************************************
  ******************************************************************************/
 void clkCb (){
+//	gpioWrite(TESTPIN, true);
+
 	buffer tempbuf = {.buff=(mybuffer.buff<<1), .nth=0b000};
 	mybuffer.buff = tempbuf.buff | !(gpioRead(DATA));			// Add new data to buffer
 	buff_count++;
@@ -140,12 +145,17 @@ void clkCb (){
 		buff_count=RESET;
 	}
 	readbuff();
+//	gpioWrite(TESTPIN, false);
+
 }
 
 void readbuff(){
 	static uint32_t i=RESET;
 	static uint8_t status=SS;
 
+	if (gpioRead(ENABLE)){
+		status=SS;
+	}
 	if (mybuffer.buff==SEMICOLON && status==SS)			// ; starts the reading
 	{
 		i=RESET;
@@ -238,7 +248,7 @@ void readbuff(){
 				mainCb(false, NULL);
 			}
 			clear();							//Clear matrix and reset variables
-			status = SS;
+			status = NOTDATA;
 			i=RESET;
 		}
 
