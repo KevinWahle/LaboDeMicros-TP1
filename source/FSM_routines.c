@@ -11,9 +11,9 @@
 
 #include "FSM_routines.h"
 #include "event_queue/event_queue.h"
+#include "encdec.h"
 #include "const.h"
 #include <stdio.h>
-#include <stdbool.h>
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -23,25 +23,31 @@
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
  ******************************************************************************/
+static uint8_t actual_id[IDSIZE]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+static uint8_t actual_pass[PASSMAX]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+static uint8_t digitCounter;
 
-bool running = 1;
-
-MENU_ITEM main_menu[] = {  
-                            {.option = "Jugar", .essential = true, .ID = PLAY_ID},
-                            {.option = "Puntajes", .essential = true, .ID = SCORE_ID},
-                            {.option = "Instrucciones", .essential = false, .ID = INSTUCTION_ID},
-                            {.option = "Salir", .essential = true, .ID = EXIT_ID},
+MENU_ITEM admin_menu[] = {  
+                            {.option = "CHANGE", .ID = CHANGE_ID},
+                            {.option = "ADD", .ID = ADD_ID},
+                            {.option = "DELETE", .ID = DEL_ID},
+                            {.option = "BACK", .ID = EXIT_ID},
                         };
+
+MENU_ITEM user_menu[] = {  
+                            {.option = "CHANGE", .ID = CHANGE_ID},
+                            {.option = "BACK", .ID = EXIT_ID},
+                        };
+
 
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-static int actual_option = 0;                            // Variable que marca la opcion del menú seleccionada.   
-static char actual_name[NAME_SIZE+1];
-static SCORE leadboard[LEADERBOARD_SIZE+1];                // Creo matriz con el leaderboard  
-static int letter_counter=0;                             // Variable que da el indice de la letra a cargar.
-static int letter;                                       // Variable que retiene la letra que se quiere cargar.   
+static uint8_t actual_option = 0;           // Variable que marca la opcion del menú seleccionada.     
+
+void update_display(uint8_t* arr, uint8_t counter, bool password);
+void updateMenuDis(char* word);
 
 /*******************************************************************************
  *******************************************************************************
@@ -50,307 +56,266 @@ static int letter;                                       // Variable que retiene
  ******************************************************************************/
 
 /**********************************************************
+************************  ID  ***************************
+**********************************************************/
+void id_init(vod){
+    for(int i=0; i<IDSIZE; i++)
+    {
+        actual_id[i]=NULLCHAR;
+    }
+    digitCounter=0;
+    update_display(actual_id, digitCounter, 0);
+}
+
+void previous_id(void){
+    if(digitCounter>0){
+        digitCounter--;
+        update_display(actual_id, digitCounter, 0);
+    }
+}
+
+void upper_id(){
+    if (actual_id[digitCounter]<9)
+    {
+        actual_id[digitCounter]++;
+    }
+    else if(actual_id[digitCounter]==NULLCHAR)
+        actual_id[digitCounter]=0;
+    else
+        actual_id[digitCounter]=0;
+
+    update_display(actual_id, digitCounter, 0);        
+}
+
+void next_id(){
+    if(digitCounter<IDSIZE){
+        digitCounter++;
+    }
+
+    else{
+        add_event(ID_READY);
+    }
+
+    update_display(actual_id, digitCounter, 0);
+}
+
+/**********************************************************
+************************  PASSWORD  ***********************
+**********************************************************/
+
+void pass_init(){
+    for(int i=0; i<PASSMAX; i++)
+    {
+        actual_pass[i]=NULL;
+    }
+    digitCounter=0;
+
+    update_display(actual_pass, digitCounter, 1);
+}
+
+void previous_pass(){
+    if(digitCounter>0){
+        digitCounter--;
+        update_display(actual_pass, digitCounter, 1);
+    }
+    else{
+        add_event(BACK);
+    }
+}
+
+void upper_pass(){
+    if (actual_pass[digitCounter]<9)
+        actual_pass[digitCounter]++;
+    else if(actual_id[digitCounter]==NULLCHAR)
+        actual_id[digitCounter]=0;
+    else
+        actual_pass[digitCounter]=0;
+
+    update_display(actual_pass, digitCounter, 1);
+}
+
+void next_pass(){
+    if(digitCounter<PASSMAX){
+        digitCounter++;
+    }
+
+    update_display(actual_pass, digitCounter, 1);
+}
+
+/**********************************************************
 ************************  MENU  ***************************
 **********************************************************/
 
-void my_menu(){
+void init_admin_menu(){
     actual_option=0;
-    show_menu (main_menu, sizeof(main_menu)/sizeof(MENU_ITEM), actual_option);  //Actualizo el menu, resaltando la opcion actualizada.  
-    #ifdef DEBUG
-        printf("Muestro el menú principal. \n");
-    #endif
-
+    updateMenuDis(admin_menu[actual_option].option);
 }
 
-void up_menu(MENU_ITEM* menu, int menu_size){ 
-    
-    #ifdef ONLY_ESSENTIAL                                                    
-            #ifdef DEBUG
-                printf("Estoy en modo ONLY_ESSENTIAL \n");
-            #endif
-
-            do{                                                                
-                
-                if(actual_option>0){                            // Si el front solo permite mostrar las opciones esenciales:
-                    actual_option--;                                                        //subimos en el menú hasta la siguiente opcion esencial siempre
-                }                                                                           //y cuando haya una arriba.
-            } while ((menu[actual_option]).essential==false && menu_size/sizeof(MENU_ITEM) > actual_option); 
-    
-    #else                                                                   // Si el front permite mostrar las opciones no esenciales:
-        if(actual_option > 0){        
-            actual_option--;                                                //subimos en el menú hasta la siguiente opcion
-        }
-
-    #endif
-
-    #ifdef DEBUG
-    printf("La nueva opción actual es: %d \n", main_menu[actual_option].ID);
-    #endif 
-
-    show_menu (menu, menu_size/sizeof(MENU_ITEM), actual_option);          // Actualizamos el front. 
-
-    #ifdef DEBUG
-    printf("Se actualizó el menú \n");
-    #endif 
+void up_menu_Admin(){
+    if (actual_option<ADMIN_MENU_LEN){
+        actual_option++;
+        updateMenuDis(admin_menu[actual_option].option);
+    }
 }
 
-void down_menu(MENU_ITEM* menu, int menu_size){
-    
-    #ifdef ONLY_ESSENTIAL   
-        #ifdef DEBUG
-                printf("Estoy en modo ONLY_ESSENTIAL \n");
-        #endif         
-        do{
-           if(menu_size/sizeof(MENU_ITEM)-1 > actual_option) {                          // Si el front solo permite mostrar las opciones esenciales:
-                actual_option++;                                                        //bajamos en el menú hasta la siguiente opción esencial siempre
-           }                                                                            //y cuando haya una abajo.
-        } while ((menu[actual_option]).essential==false && actual_option>0);
-    
-    #else                                                                               // Si el front permite mostrar las opciones no esenciales:
-        
-        if(menu_size/sizeof(MENU_ITEM)-1 > actual_option) {
-            actual_option++;                                                            //bajamos en el menú hasta la siguiente opcion
-        }
-        
-    #endif
-    
-
-    #ifdef DEBUG
-    printf("La nueva opción actual es: %d \n", main_menu[actual_option].ID);
-    #endif 
-    
-    show_menu (menu, menu_size/sizeof(MENU_ITEM), actual_option);                       // Actualizamos el front. 
-
-    #ifdef DEBUG
-    printf("Se actualizó el menú \n");
-    #endif 
+void down_menu_Admin(){
+    if (actual_option>0){
+        actual_option--;
+        updateMenuDis(admin_menu[actual_option].option);
+    }
 }
 
-void up_menu_main()
-{
-    up_menu(main_menu, sizeof(main_menu));              // Subo en el menu principal
-}
+void click_menu_Admin(){
+    switch (admin_menu[actual_option].ID){
+        case CHANGE_ID:
+            add_event(CHNG_PASS);
+            break;
 
-void down_menu_main()
-{
-    down_menu(main_menu, sizeof(main_menu));            // Bajo en el menu principal
-}
+        case ADD_ID:
+            add_event(ADD_USER);
+            break;
 
-void up_menu_pause()
-{
-    up_menu(pause_menu, sizeof(pause_menu));             // Subo en el menu de pausa
-}
-
-void down_menu_pause()
-{
-    down_menu(pause_menu, sizeof(pause_menu));           // Bajo en el menu de pausa
-}
-
-
-void click_menu()
-{     
-    switch ((main_menu[actual_option]).ID)
-    {
-        case PLAY_ID:
-            add_event(PLAY_EVENT);        // Añadimos a  la cola de eventos
-        break;
-
-        case SCORE_ID:
-            add_event(SCORE_EVENT);       // Añadimos a  la cola de eventos
-        break;
-
-        case INSTUCTION_ID:
-            add_event(INSTRUCTION_EVENT);     // Añadimos a  la cola de eventos
-        break;
+        case DEL_ID:
+            add_event(DEL_USER);
+            break;
 
         case EXIT_ID:
-            add_event(EXIT_EVENT);        // Añadimos a  la cola de eventos
-        break;        
+            add_event(BACK);
+            break;
+        
+        default:
+            break;
     }
+}
 
-    #ifdef DEBUG
-        printf("Se agregó a la cola de eventos el ID: %d \n", main_menu[actual_option].ID);
-    #endif      
+void init_menu(){
     actual_option=0;
+    updateMenuDis(user_menu[actual_option].option);
 }
 
-void click_menu_pause()
-{      
+void down_menu(){
+    if (actual_option<USER_MENU_LEN){
+        actual_option++;
+        updateMenuDis(user_menu[actual_option].option);
+    }
+}
 
-    switch (pause_menu[actual_option].ID)
-    {
-        case PLAY_ID:
-            add_event(PLAY_EVENT);            // Añadimos a  la cola de eventos
-                                                    //el evento para redireccionar la FSM.
+void up_menu(){
+    if (actual_option>0){
+        actual_option--;
+        updateMenuDis(user_menu[actual_option].option);
+    }
+}
+
+void click_menu(){
+    switch (user_menu[actual_option].ID){
+        case CHANGE_ID:
+            add_event(CHNG_PASS);
+            break;
+
+        case EXIT_ID:
+            add_event(BACK);
+            break;
+        
+        default:
+            break;
+    }
+}
+
+/**********************************************************
+********************  CALLBACKS  *************************
+**********************************************************/
+
+//TODO: Agregar al .h
+void encoderCallback(ENC_STATE state){
+    switch(state){
+        case ENC_LEFT:
+            add_event(ENCODER_LEFT);
         break;
 
-        case RESUME_ID:
-            add_event(RESUME_EVENT);          // Añadimos a  la cola de eventos
-                                                    //el evento para redireccionar la FSM. 
+        case ENC_RIGHT:
+            add_event(ENCODER_RIGHT);
         break;
-        
-        case BACK_ID:
-            add_event(BACK_EVENT);            // Añadimos a  la cola de eventos
-                                                    //el evento para redireccionar la FSM.
+
+        case ENC_CLICK:
+            add_event(ENCODER_PRESS);
+        break;
+
+        case ENC_LONG:
+            add_event(ENCODER_LONG);
+        break;
+
+        case ENC_DOUBLE:
+            add_event(ENCODER_DOUBLE);
+        break;
+
+        default:
         break;
     }
+}
 
-    actual_option=0;
+/**********************************************************
+*********************  DISPLAY   **************************
+**********************************************************/
 
-    #ifdef DEBUG
-        printf("Se agregó a la cola de eventos: %d \n", main_menu[actual_option].ID);
-        
-    #endif 
+// Muestra el brillo actual en el display
+void brillo_init() {
+	dispArrShowNum(dispArrGetBright());
+}
+
+// Decrementa el brillo del display
+void dec_bright() {
+	dispArrSetBright(dispArrGetBright()-1);
+	dispArrShowNum(dispArrGetBright());
+}
+
+// Incrementa el brillo del display
+void inc_bright() {
+	dispArrSetBright(dispArrGetBright()+1);	
+	dispArrShowNum(dispArrGetBright());
+}
+
+// La pantalla de error es la misma para todos los estados
+void errorScreen() {
+	dispArrSlideLoop(ERROR_MSG);
 }
 
 
-void next_letter()
-{
-    if (letter_counter < IDSIZE-1)                         // Si me quedan letras por guardar:
-    {
-    letter_counter++;                              // Paso a la siguiente letra.                                           
-    letter=actual_name[letter_counter];            // Cargo la siguiente letra de la nueva ubicación.
-    
-    if(letter==9)    
-    {
-        actual_name[letter_counter]='A';
-    } 
+void update_display(int* arr, int counter, bool password) {
 
-    #ifdef DEBUG
-        printf("Se confirmo la letra: %c. El arreglo quedó %s.\n", actual_name[letter_counter], actual_name);
-    #endif   
-    
-    }
+	uint8_t dispIndex = min(counter, DISP_COUNT-1);
+
+	uint8_t dispOffset = counter < DISP_COUNT ? counter : counter - DISP_COUNT*(counter/DISP_COUNT);
+
+	if (password) {
+
+		char strArr[DISP_COUNT];
+
+		for (int i = 0; i < DISP_COUNT; i++) {
+			strArr[i] = '-';
+		}
+
+		strArr[dispIndex] = arr[counter];
+
+		dispArrShowNumArr(strArr);
+		
+	}
+	else {
+		dispArrShowNumArr(arr + dispOffset);
+	}
+	
+	dispArrSelect(dispIndex);
+
 }
 
-void next_digit(){
-    if (digit_counter < IDSIZE-1){
-        digit_counter++;
-        digit=actual_word[]
-    }
-}
 
-void previous_letter()
-{
-    if(letter_counter>0)                                // Si no estoy en la primer letra:
-    {
-        letter_counter--;                               //Retrocedo una letra.
-        #ifdef DEBUG
-            printf("Se retrocedió una letra \n");
-        #endif
-        
-        letter=actual_name[letter_counter];             // Cargo la anterior letra de la nueva ubicación.
-
-    
-    score_name_front(actual_name, NAME_SIZE, letter_counter, get_points()); // Muestra la pantalla de carga de puntaje.
-
-    }   
-}
-
-void upper_letter()
-{
-    if (letter=='Z'){                           // Si tengo cargada una 'Z'                        
-        letter= '_';                            //cargo el caracter ' '.
-    }  
-    else if (letter=='_'){                      // Si tengo cargada un ' '                        
-        letter= 'A';                            //cargo el caracter 'A'.
-    }    
-
-    else{
-        letter++;                               // Si es una letra cualquiera paso a la siguiente del
-                                                //abcedario.
-    }
-    #ifdef DEBUG
-        printf("Se pasó a la letra %c \n", letter);
-    #endif
-    actual_name[letter_counter]=letter;
-
-    score_name_front(actual_name, NAME_SIZE, letter_counter, get_points()); // Muestra la pantalla de carga de puntaje.
-}
-
-void lower_letter()
-{
-    if (letter=='A'){                           // Si tengo cargada una 'A'                        
-        letter= '_';                            //cargo el caracter ' '.
-    }  
-    else if (letter=='_'){                      // Si tengo cargada un ' '                        
-        letter= 'Z';                            //cargo el caracter 'Z'.
-    }    
-    else 
-    {                                           // Si es una letra cualquiera paso a la anterior del
-        letter--;                               //abcedario.
-    }
-    #ifdef DEBUG
-        printf("Se pasó a la letra %c\n", letter);
-    #endif
-    actual_name[letter_counter]=letter;
-
-    score_name_front(actual_name, NAME_SIZE, letter_counter, get_points()); // Muestra la pantalla de carga de puntaje.
-}
-
-void save_score(){
-
-    #ifdef DEBUG
-    printf("El nombre a guardar es: %s\n", actual_name);
-    #endif
-
-    SCORE* p_leadboard=leadboard;                       // Coloco un puntero a su primer elemento
-    int not_null_char=0;                                // Creo una variable que cuente los ' '.
-    for(int i=0; i<NAME_SIZE; i++)                      // Para cada caracter no terminador de
-    {                                                   //actual_name:
-        if (actual_name[i] != '_'){                     // Reviso si NO es ' ' y si es así              
-            not_null_char++;}                           // incremento la cantidad de posiciones
-                                                        // que tinen valor.
-        else{
-            actual_name [i] = ' ';       
-        }
-    }                                                   
-
-    if (not_null_char>0)                                // Si afirmativamente hay algun caracter guardado:
-    {
-
-        put_score (actual_name, get_points(), LEADERBOARD_SIZE, p_leadboard);   // Ejecuto la función que guarda el 
-                                                                                //puntaje ordenado en el archivo.
-
-        #ifdef DEBUG
-        printf("Se guadro el nuevo score\n");
-        #endif
-    }
-
-    my_menu();                                          // Precargo el menú antes de salir.
-}
-
-void saving_init()
-{
-    actual_name[0]='A';
-
-    for(int i=1; i<NAME_SIZE; i++)
-    {
-        actual_name[i]= '_';        // Inicio el arreglo con espacios.
-    }
-    actual_name[NAME_SIZE]=0;       // Cargo el terminador.
-    letter_counter=0;               // Apunto al primer elemento del arreglo nombre
-    letter= actual_name[letter_counter];
-
-    #ifdef DEBUG
-        printf("Se inicializó la carga \n");
-    #endif
-
-    score_name_front(actual_name, NAME_SIZE, letter_counter, get_points());    
+void updateMenuDis(char* word) {
+	dispArrSlideLoop(word);
 }
 
 /**********************************************************
 *********************  VARIOUS   **************************
 **********************************************************/
-
-void refresh(void){
-    speed_update(SPEED_LAPSE);                                  // Actualizo la velocidad con la que se mueven los invaders.
-    redraw(get_points(),get_lives(),get_level());               // Redibujo la pantalla.
-    if(checkWin()){                                             // Verifico si se pasó de nivel o no.
-        add_event(NEXT_LEVEL_EV);
-    }
-}
-
 void doNothing() {
     return;
 }

@@ -43,6 +43,7 @@ extern STATE addPass_state[];
 extern STATE delUser_state[];
 extern STATE AdminMenu_state[];
 extern STATE UserMenu_state[];
+extern STATE changePassA_state[];
 
 STATE ID_state[] = {
     {ENCODER_LONG, brillo_state, brillo_init},          
@@ -68,14 +69,14 @@ STATE IDError_state[] = {
 };
 
 STATE Pass_state[] = {
-    {ENCODER_LEFT, Pass_state, previous_pass},  // Revisar previous_letter
-    {ENCODER_RIGHT, Pass_state, upper_pass}, // Revisar upper_letter
-    {ENCODER_PRESS, Pass_state, next_pass}, // Revisar next_letter
-    {ENCODER_LONG, ID_state, id_init}, 
-    {PASS_READY, Pass_state, check_pass},
+    {ENCODER_LEFT, Pass_state, previous_pass}, 
+    {ENCODER_RIGHT, Pass_state, upper_pass}, 
+    {ENCODER_PRESS, Pass_state, next_pass}, 
+    {ENCODER_LONG, Pass_state, check_pass},
     {WRONG_PASS, PassError_state, errorScreen},
     {ADMIN_USER, AdminMenu_state, init_admin_menu},
     {NORMAL_USER, UserMenu_state, init_menu},
+    {BACK, ID_state, id_init}, 
     {NULL_EVENT, Pass_state, doNothing}
 };
 
@@ -135,7 +136,7 @@ STATE delUser_state[] = {
     {ENCODER_LEFT, delUser_state, up_menu_del},    
     {ENCODER_RIGHT, delUser_state, down_menu_del}, 
     {ENCODER_PRESS, delUser_state, del_user},        
-    {BACK, UserMenu_state, my_menu},
+    {BACK, UserMenu_state, init_menu},
     {NULL_EVENT, delUser_state, doNothing}
 };
 
@@ -152,9 +153,9 @@ STATE changePass_state[] = {
     {ENCODER_LEFT, changePass_state, previous_pass},
     {ENCODER_RIGHT, changePass_state, upper_pass},
     {ENCODER_PRESS, changePass_state, next_pass}, 
-    {ENCODER_LONG, UserMenu_state, my_menu},
+    {ENCODER_LONG, UserMenu_state, init_menu},
     {PASS_READY, Pass_state, save_pass},
-    {BACK, UserMenu_state, my_menu},
+    {BACK, UserMenu_state, init_menu},
     {NULL_EVENT, changePassA_state, doNothing}
 };
 

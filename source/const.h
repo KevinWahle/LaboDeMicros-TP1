@@ -17,6 +17,11 @@
 #define IDSIZE	8
 #define PASSMIN	4
 #define PASSMAX	5
+#define ADMIN_MENU_LEN	4
+#define USER_MENU_LEN	2
+#define PASSMAX	5
+#define NULLCHAR 10
+#define ERROR_MSG	"Error de autorizacion"
 
 enum EVENTS {
 	
@@ -59,6 +64,7 @@ enum EVENTS {
     ENCODER_RIGHT,
 	ENCODER_PRESS,
 	ENCODER_RELEASE,
+	ENCODER_DOUBLE,
 	ENCODER_LONG,
 
 	// Lector de tarjetas
@@ -82,7 +88,6 @@ enum IDS{
 // en los diferentes menúes.
 typedef struct {
 	char* option;
-	bool admin;
 	int ID;
 } MENU_ITEM;
 
