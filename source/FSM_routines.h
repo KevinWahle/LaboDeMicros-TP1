@@ -22,24 +22,23 @@
  ******************************************************************************/
 
 // funciones de serman
-void brillo_init(); // Muestra el brillo actual en el display
-void dec_bright();  // decrementa la var brillo y refresca
-void inc_bright();  // incrementa la var brillo y refresca
+void brillo_init(); // Muestra el brillo actual en el display               //SERMAN
+void dec_bright();  // decrementa la var brillo y refresca                  //SERMAN
+void inc_bright();  // incrementa la var brillo y refresca                  //SERMAN
 
-//SERMAN
-void errorScreen(); // La pantalla de error es la misma para todos los estados 
+void errorScreen(); // La pantalla de error es la misma para todos los estados //SERMAN
 
 void id_init();     // reset del arreglo id y su puntero
 void previous_id(); // movemos puntero para atras
-void upper_id();    // 
+void upper_id();     
 void next_id();
-void check_id();    // existe el id?
+void check_id();    // existe el id?                                        //SCHEMBE
 
 void pass_init();   // reset del arreglo pass y su puntero
 void previous_pass();
 void upper_pass();
 void next_pass();   
-void check_pass();  // la pass es la indicada
+void check_pass();  // la pass es la indicada                               //SCHEMBE
 
 void init_admin_menu(); // reset el option selector
 void up_menu_Admin();
@@ -51,19 +50,18 @@ void down_menu();
 void up_menu();
 void click_menu();
 
-void used_id();     // el id a agregar ya existe? Genera ID_OK o ID_WRONG
-void save_pass();   // dsepues de guardar se genera el evento BACK
-void add_user();    // addUser genera el evento back al terminar
+void used_id();     // el id a agregar ya existe? Genera ID_OK o ID_WRONG   //SCHEMBE
+void save_pass();   // dsepues de guardar se genera el evento BACK          //SCHEMBE
+void add_user();    // addUser genera el evento back al terminar            //SCHEMBE
 
-void list_init();   // inicia la lista de usuarios para seleccionar cual borrar
-void up_menu_del(); 
-void down_menu_del();
-void del_user();
+void list_init();   // inicia la lista de usuarios para seleccionar cual borrar  
+void up_menu_del();
+void down_menu_del(); 
+void del_user(); //SCHEMBE
 
 // Creación, paseo y seleccion de los menus: BASILI
 // Carga de ID y contraseña: BASILI
-// Base de datos, Borrado y agregado de usuarios: Schembe+Kevin
-
+// Base de datos, Borrado y agregado de usuarios: Schembe
 
 
 /**
