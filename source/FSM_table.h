@@ -41,98 +41,121 @@ extern STATE addID_state[];
 extern STATE addError_state[];
 extern STATE addPass_state[];
 extern STATE delUser_state[];
+extern STATE AdminMenu_state[];
+extern STATE UserMenu_state[];
 
 STATE ID_state[] = {
     {ENCODER_LONG, brillo_state, brillo_init},          
-    {ENCODER_LEFT, ID_state, fill},  // Revisar previous_letter
-    {ENCODER_RIGHT, ID_state, fill}, // Revisar upper_letter
-    {ENCODER_PRESS, ID_state, fill}, // Revisar next_letter
+    {ENCODER_LEFT, ID_state, previous_id},
+    {ENCODER_RIGHT, ID_state, upper_id}, 
+    {ENCODER_PRESS, ID_state, next_id}, 
     {ID_READY, ID_state, check_id},
     {WRONG_ID, IDError_state, errorScreen},     
     {ID_OK, Pass_state, pass_init},
     {NULL_EVENT, ID_state, doNothing}
-};
+};  // REVISAR: Agregar tema timeout
 
 STATE brillo_state[] = {
     {ENCODER_LEFT, brillo_state, dec_bright},  
     {ENCODER_RIGHT, brillo_state, inc_bright},
-    {ENCODER_PRESS, ID_state, id_init}, // Revisar next_letter 
+    {ENCODER_PRESS, ID_state, id_init}, 
     {NULL_EVENT, brillo_state, doNothing}
 };
 
 STATE IDError_state[] = {
-    {TIMEOUT, IDError_state, id_init},
+    {ENCODER_PRESS, ID_state, id_init},
     {NULL_EVENT, IDError_state, doNothing}
 };
 
 STATE Pass_state[] = {
-    {ENCODER_LEFT, Pass_state, fill},  // Revisar previous_letter
-    {ENCODER_RIGHT, Pass_state, fill}, // Revisar upper_letter
-    {ENCODER_PRESS, Pass_state, fill}, // Revisar next_letter
+    {ENCODER_LEFT, Pass_state, previous_pass},  // Revisar previous_letter
+    {ENCODER_RIGHT, Pass_state, upper_pass}, // Revisar upper_letter
+    {ENCODER_PRESS, Pass_state, next_pass}, // Revisar next_letter
     {ENCODER_LONG, ID_state, id_init}, 
     {PASS_READY, Pass_state, check_pass},
-    {PASS_OK, Menu_state, my_menu},
+    {WRONG_PASS, PassError_state, errorScreen},
+    {ADMIN_USER, AdminMenu_state, init_admin_menu},
+    {NORMAL_USER, UserMenu_state, init_menu},
     {NULL_EVENT, Pass_state, doNothing}
 };
 
 STATE PassError_state[] = {
-    {TIMEOUT, Pass_state, pass_init},
+    {ENCODER_PRESS, Pass_state, pass_init},
     {NULL_EVENT, PassError_state, doNothing}
 };
 
-STATE Menu_state[] = {
-    {ENCODER_LEFT, Menu_state, up_menu_main},       //REVISAR: el callback
-    {ENCODER_RIGHT, Menu_state, down_menu_main},    //REVISAR: el callback
-    {ENCODER_PRESS, Menu_state, click_menu},        //REVISAR: el callback
+STATE AdminMenu_state[] = {
+    {ENCODER_LEFT, AdminMenu_state, up_menu_Admin},       
+    {ENCODER_RIGHT, AdminMenu_state, down_menu_Admin},    
+    {ENCODER_PRESS, AdminMenu_state, click_menu_Admin},      
     {CHNG_PASS, changePass_state, pass_init},
     {ADD_USER, addID_state, id_init},
     {DEL_USER, delUser_state, list_init},
     {BACK, ID_state, id_init},
-    {NULL_EVENT, Menu_state, doNothing}
+    {NULL_EVENT, AdminMenu_state, doNothing}
 };
 
-STATE changePass_state[] = {
-    {ENCODER_LEFT, changePass_state, fill},  // Revisar previous_letter
-    {ENCODER_RIGHT, changePass_state, fill}, // Revisar upper_letter
-    {ENCODER_PRESS, changePass_state, fill}, // Revisar next_letter
-    {ENCODER_LONG, Menu_state, my_menu},
-    {PASS_READY, Pass_state, save_pass},
-    {BACK, Menu_state, my_menu},
-    {NULL_EVENT, changePass_state, doNothing}
+STATE changePassA_state[] = {
+    {ENCODER_LEFT, changePassA_state, previous_pass}, 
+    {ENCODER_RIGHT, changePassA_state, upper_pass},
+    {ENCODER_PRESS, changePassA_state, next_pass}, 
+    {ENCODER_LONG, AdminMenu_state, init_admin_menu},
+    {PASS_READY, AdminMenu_state, save_pass},
+    {BACK, AdminMenu_state, init_admin_menu},
+    {NULL_EVENT, changePassA_state, doNothing}
 };
 
 STATE addID_state[] = {
-    {ENCODER_LEFT, addID_state, fill},  // Revisar previous_letter
-    {ENCODER_RIGHT, addID_state, fill}, // Revisar upper_letter
-    {ENCODER_PRESS, addID_state, fill}, // Revisar next_letter
-    {ENCODER_LONG, Menu_state, my_menu},
-    {ID_READY, addID_state, used_id},   // used_id genera ID_OK o WRONG_ID 
+    {ENCODER_LEFT, addID_state, previous_pass},
+    {ENCODER_RIGHT, addID_state, upper_pass}, 
+    {ENCODER_PRESS, addID_state, next_pass}, 
+    {ENCODER_LONG, AdminMenu_state, init_admin_menu},
+    {ID_READY, addID_state, used_id},   
     {WRONG_ID, addError_state, errorScreen},     
     {ID_OK, addPass_state, pass_init},
     {NULL_EVENT, addID_state, doNothing}
 };
 
 STATE addError_state[] = {
-    {TIMEOUT, addID_state, id_init},
+    {ENCODER_PRESS, addID_state, id_init},
     {NULL_EVENT, addError_state, doNothing}
 };
 
 STATE addPass_state[] = {
-    {ENCODER_LEFT, addPass_state, fill},  // Revisar previous_letter
-    {ENCODER_RIGHT, addPass_state, fill}, // Revisar upper_letter
-    {ENCODER_PRESS, addPass_state, fill}, // Revisar next_letter
-    {ENCODER_LONG, Menu_state, my_menu},
-    {PASS_READY, Pass_state, add_user},     // addUser genera el evento back al terminar     
-    {BACK, Menu_state, my_menu},
+    {ENCODER_LEFT, addPass_state, previous_pass},  
+    {ENCODER_RIGHT, addPass_state, upper_pass}, 
+    {ENCODER_PRESS, addPass_state, next_pass}, 
+    {ENCODER_LONG, AdminMenu_state, init_admin_menu},
+    {PASS_READY, Pass_state, add_user},          
+    {BACK, AdminMenu_state, init_admin_menu},
     {NULL_EVENT, addPass_state, doNothing}
 };
 
 STATE delUser_state[] = {
-    {ENCODER_LEFT, delUser_state, up_menu_main},    //REVISAR: el callback
-    {ENCODER_RIGHT, delUser_state, down_menu_main}, //REVISAR: el callback
-    {ENCODER_PRESS, delUser_state, del_user},       //del user genera back 
-    {BACK, Menu_state, my_menu},
-    {NULL_EVENT, DelUser_state, doNothing}
+    {ENCODER_LEFT, delUser_state, up_menu_del},    
+    {ENCODER_RIGHT, delUser_state, down_menu_del}, 
+    {ENCODER_PRESS, delUser_state, del_user},        
+    {BACK, UserMenu_state, my_menu},
+    {NULL_EVENT, delUser_state, doNothing}
+};
+
+STATE UserMenu_state[] = {
+    {ENCODER_LEFT, UserMenu_state, up_menu},      
+    {ENCODER_RIGHT, UserMenu_state, down_menu},   
+    {ENCODER_PRESS, UserMenu_state, click_menu},  
+    {CHNG_PASS, changePass_state, pass_init},
+    {BACK, ID_state, id_init},
+    {NULL_EVENT, UserMenu_state, doNothing}
+};
+
+STATE changePass_state[] = {
+    {ENCODER_LEFT, changePass_state, previous_pass},
+    {ENCODER_RIGHT, changePass_state, upper_pass},
+    {ENCODER_PRESS, changePass_state, next_pass}, 
+    {ENCODER_LONG, UserMenu_state, my_menu},
+    {PASS_READY, Pass_state, save_pass},
+    {BACK, UserMenu_state, my_menu},
+    {NULL_EVENT, changePassA_state, doNothing}
 };
 
 /*******************************************************************************

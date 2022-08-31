@@ -204,77 +204,31 @@ void click_menu_pause()
 }
 
 
-/**********************************************************
-*************  PAUSE/RESUME/START/QUIT   ******************
-**********************************************************/
-
-void pause_game(void){
-    actual_option=0;
-    show_menu(pause_menu, sizeof(pause_menu)/sizeof(MENU_ITEM), actual_option);
-    pause_game_front();
-    #ifdef DEBUG
-        printf("Mostrando menú de pausa. \n");
-    #endif
-}
-
-void resume_game(void){
-    resume_game_front();
-    
-    #ifdef DEBUG
-        printf("Reanudo partida. \n");
-    #endif
-}
-
-void start_game(void){
-    reset_lives();              // Renuevo las vidas.
-    reset_points();             // Reinicio el contador de puntos.
-    reset_level();              // Reinicio el contador de niveles.
-    reset_killed_aliens();      // Reinicio el contador de aliens asesinados.
-    #ifdef DEBUG
-        printf("Se revivieron todos los invaders. \n");
-    #endif    
-    
-    clean_shoots();             // Limpio los disparos en pantalla. 
-    
-    #ifdef DEBUG
-        printf("Se borraron los tiros de la pantalla. \n");
-    #endif
-    init_game();
-    
-    #ifdef DEBUG
-        printf("Iniciando partida. \n");
-    #endif
-}
-
-void quit_game(void) {
-    destroy_front();
-    running=0;                          // Bajo el flag para correr el programa.                                    
-    #ifdef DEBUG
-        printf("Salgo del juego. \n");
-    #endif
-}
-
-
 void next_letter()
 {
-    if (letter_counter < NAME_SIZE-1)                         // Si me quedan letras por guardar:
+    if (letter_counter < IDSIZE-1)                         // Si me quedan letras por guardar:
     {
     letter_counter++;                              // Paso a la siguiente letra.                                           
     letter=actual_name[letter_counter];            // Cargo la siguiente letra de la nueva ubicación.
     
-    if(letter=='_')    
+    if(letter==9)    
     {
         actual_name[letter_counter]='A';
     } 
 
     #ifdef DEBUG
         printf("Se confirmo la letra: %c. El arreglo quedó %s.\n", actual_name[letter_counter], actual_name);
-    #endif
-
-    score_name_front(actual_name, NAME_SIZE, letter_counter, get_points()); // Muestra la pantalla de carga de puntaje.    
+    #endif   
     
     }
-}      
+}
+
+void next_digit(){
+    if (digit_counter < IDSIZE-1){
+        digit_counter++;
+        digit=actual_word[]
+    }
+}
 
 void previous_letter()
 {

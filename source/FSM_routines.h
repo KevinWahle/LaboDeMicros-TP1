@@ -21,10 +21,49 @@
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
-/**
- * @brief Llama a la función que se encarga del splash
-*/
-void show_splash(void);
+// funciones de serman
+void brillo_init(); // Muestra el brillo actual en el display
+void dec_bright();  // decrementa la var brillo y refresca
+void inc_bright();  // incrementa la var brillo y refresca
+
+//SERMAN
+void errorScreen(); // La pantalla de error es la misma para todos los estados 
+
+void id_init();     // reset del arreglo id y su puntero
+void previous_id(); // movemos puntero para atras
+void upper_id();    // 
+void next_id();
+void check_id();    // existe el id?
+
+void pass_init();   // reset del arreglo pass y su puntero
+void previous_pass();
+void upper_pass();
+void next_pass();   
+void check_pass();  // la pass es la indicada
+
+void init_admin_menu(); // reset el option selector
+void up_menu_Admin();
+void down_menu_Admin();
+void click_menu_Admin();    // genera el evento correspondiente a la opcion seleccionada
+
+void init_menu();   // reset el option selector
+void down_menu();
+void up_menu();
+void click_menu();
+
+void used_id();     // el id a agregar ya existe? Genera ID_OK o ID_WRONG
+void save_pass();   // dsepues de guardar se genera el evento BACK
+void add_user();    // addUser genera el evento back al terminar
+
+void list_init();   // inicia la lista de usuarios para seleccionar cual borrar
+void up_menu_del(); 
+void down_menu_del();
+void del_user();
+
+// Creación, paseo y seleccion de los menus: BASILI
+// Carga de ID y contraseña: BASILI
+// Base de datos, Borrado y agregado de usuarios: Schembe+Kevin
+
 
 
 /**
@@ -111,37 +150,6 @@ void click_menu_pause(void);
 
 
 /**
- * @brief Llama a la función encargada de matar al crab.
-*/
-void crab_coll(void);
-
-
-/**
- * @brief Llama a la función encargada de matar al octopus.
-*/
-void octo_coll(void);
-
-
-/**
- * @brief Llama a la función encargada de matar al squid.
-*/
-void squid_coll(void);
-
-
-/**
- * @brief Llama a la función encargada de matar al ufo.
-*/
-void ufo_coll(void);
-
-
-/**
- * @brief Decrementa una vida y, si es necesario, agrega el evento
- *        de finalizar evento a la cola de eventos.
-*/
-void cannon_coll(void);
-
-
-/**
  * @brief Llama a la función encargada seleccionar la opcion de arriba del menu principal.
 */
 void up_menu_main(void);
@@ -200,33 +208,6 @@ void saving_init(void);
  * @brief Actualiza el timer y lo que se muestra en pantalla.
 */
 void refresh (void);
-
-/**
- * @brief Llama a la función que se encarga demostrar el nombre del usuario en pantalla 
- *        (para luego vincularlo al puntaje correspondiente).
-*/
-void show_name(void);
-
-/**
- * @brief Llama a la función que se encarga de mover el cannon hacia la derecha.
-*/
-void move_cannon_right(void);
-
-/**
- * @brief Llama a la función que se encarga de mover el cannon hacia la izquierda.
-*/
-void move_cannon_left(void);
-
-/**
- * @brief  Llama a la función del front que detiene el movimiento del cañón.
-*/
-void stop_cannon_left(void);
-
-/**
- * @brief  Llama a la función del front que detiene el movimiento del cañón.
-*/
-void stop_cannon_right(void);
-
 
 /*******************************************************************************
  ******************************************************************************/

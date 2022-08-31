@@ -14,6 +14,10 @@
  ******************************************************************************/
 //#define DEBUG 1
 
+#define IDSIZE	8
+#define PASSMIN	4
+#define PASSMAX	5
+
 enum EVENTS {
 	
 	// Eventos de Software
@@ -23,18 +27,21 @@ enum EVENTS {
 	WRONG_ID,
 	ID_OK,
 
-	//PASS EVENTS
+	// PASS EVENTS
 	PASS_READY,
 	WRONG_PASS,
 	PASS_OK,
 	CHNG_PASS,
 
-	//USER STATE
+	// USER STATE
 	ADD_USER,	// evento que sale del menu
 	ADD,		// evento en el que se crea el usuario
 	DEL_USER,
 	DELETE,
 
+	// USER TYPES
+	ADMIN_USER,
+	NORMAL_USER,
 
 	// Miscelaneos
 	TIMEOUT,
