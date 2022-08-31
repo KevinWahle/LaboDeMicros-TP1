@@ -73,7 +73,7 @@
 
 ////// Useful macros
 
-#define LIMIT(val, min, max)	( ( (val) >= (min) ) && ( (val) <= (max) ) ? (val) : ( (val) < (min) ) ? (min) : (max))
+#define LIMIT(val, min, max)	( ( (val) >= (min) ) && ( (val) <= (max) ) ? (val) : ( ( (val) < (min) ) ? (min) : (max)) )
 
 #define MS2CYC(ms)	((ms)/PISR_TIME)	// Converts milliseconds to PISR cycles
 
@@ -104,7 +104,7 @@ static uint8_t actualDisp = 0;		// Index of array to update
 static dispDigit_t selectedChar;		// Save char to blink
 static uint8_t selectedIndex;
 
-static dispDigit_t* slideDigits = NULL;	// Dynamic array to allocate digits to slide
+static dispDigit_t slideDigits[MAX_SLIDE_LEN+1];	// Array to copy digits to slide + terminator
 static uint8_t slideLen;
 static uint8_t slideIndex;
 
@@ -164,6 +164,8 @@ static void retrieveSlideString(char* str);
 
 static void setMode(DISPLAY_MODES mode);
 
+static void clearDispArr();
+
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -186,7 +188,7 @@ bool dispArrInit() {
 		gpioMode(control[i], OUTPUT);
 	}
 
-	dispArrClear();
+	dispArrClear();		// Set to clear mode
 
 	// Init timer for PISR
 	timerInit();
@@ -196,12 +198,21 @@ bool dispArrInit() {
 
 }
 
+/**
+ * @brief Get the actual brightness of the display
+ * @return bright: The level of brightness [0-100]
+ * @return bright: The level of brightness [0-100]
+ */
+uint8_t dispArrGetBright() {
+	return actualBright;
+}
+
 
 /**
  * @brief Set the brightness of the display array
  * @param bright: Level of brightness [0-100]
  */
-void dispSetBright(uint8_t bright) {
+void dispArrSetBright(uint8_t bright) {
 	actualBright = LIMIT(bright, 0, MAX_BRIGHT);
 }
 
@@ -258,7 +269,7 @@ void dispArrShowNum(uint32_t num) {
 		num2Digit(num/div, actualDigits);		// Keep first 4 digits, discard the rest
 	}
 	else {
-		dispArrClear();									// Clear Array
+		clearDispArr();									// Clear Array
 		num2Digit(num, actualDigits+DISP_COUNT-len);	// and write to end of array
 	}
 }
@@ -273,6 +284,8 @@ void dispArrSlideOnce(char* str) {
 	setMode(ONCE);
 
 	retrieveSlideString(str);
+
+	clearDispArr();
 
 	transCont = TRANS_CYC-1;	// Timer reset
 
@@ -291,6 +304,8 @@ void dispArrSlideLoop(char* str) {
 
 	retrieveSlideString(str);
 
+	clearDispArr();
+
 	transCont = TRANS_CYC-1;	// Timer reset
 
 	slideIndex = 0;		// Index reset
@@ -308,7 +323,7 @@ void dispArrShowSelect(char* str, uint8_t sel) {
 
 	string2DispArr(str);
 
-	actualDigits[LIMIT(sel, 0, DISP_COUNT)] |= DISP_DP;		// Turn on DP on selected digit
+	actualDigits[LIMIT(sel, 0, DISP_COUNT-1)] |= DISP_DP;		// Turn on DP on selected digit
 
 }
 
@@ -324,7 +339,7 @@ void dispArrBlink(char* str, uint8_t sel) {
 
 	string2DispArr(str);
 
-	selectedIndex = LIMIT(sel, 0, DISP_COUNT);
+	selectedIndex = LIMIT(sel, 0, DISP_COUNT-1);
 
 	selectedChar = actualDigits[selectedIndex];
 
@@ -336,9 +351,10 @@ void dispArrBlink(char* str, uint8_t sel) {
 
 
 void dispArrClear() {
-	for (int i = 0; i < DISP_COUNT; i++) {
-		actualDigits[i] = DISP_OFF;
-	}
+
+	setMode(SHOW);
+
+	clearDispArr();
 }
 
 /*******************************************************************************
@@ -357,8 +373,7 @@ static void dispPISR() {
 		case TIMED:
 
 			if (!timedShowCont) {	// Time elapsed
-				dispArrClear();			// Clear display
-				actualMode = SHOW;		// and set to show mode
+				dispArrClear();			// set mode to clear
 			}
 			else {
 				timedShowCont--;
@@ -511,21 +526,24 @@ static void string2DispArr(char* str) {
 // Copy the string to slideDigits after allocation
 static void retrieveSlideString(char* str) {
 
-	slideLen = 0;
+	slideLen = strlen(str);
 
-	while(*(str + (slideLen++)));	// Get str length
-
-	free(slideDigits);	// free before malloc
-
-	slideDigits = (dispDigit_t*)malloc(sizeof(dispDigit_t)*(slideLen+1));	// One more for terminator
-
-	if (slideDigits) {
-		memcpy(slideDigits, str, slideLen+1);
+	if (slideLen > MAX_SLIDE_LEN) {
+		slideLen = MAX_SLIDE_LEN;
+		char temp[MAX_SLIDE_LEN];
+		memcpy(temp, str, slideLen*sizeof(char*));
+		string2Digit(temp, slideDigits);
 	}
 	else {
-		//TODO: throw exception????
+		string2Digit(str, slideDigits);
 	}
 
+}
+
+static void clearDispArr() {
+	for (int i = 0; i < DISP_COUNT; i++) {
+		actualDigits[i] = DISP_OFF;
+	}
 }
 
 /*******************************************************************************

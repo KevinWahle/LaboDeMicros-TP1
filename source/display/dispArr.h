@@ -21,6 +21,8 @@
 
 #define DISP_COUNT		4
 
+#define MAX_SLIDE_LEN	32
+
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
@@ -33,10 +35,17 @@ bool dispArrInit();
 
 
 /**
+ * @brief Get the actual brightness of the display
+ * @return bright: The level of brightness [0-100]
+ */
+uint8_t dispArrGetBright();
+
+
+/**
  * @brief Set the brightness of the display array
  * @param bright: Level of brightness [0-100]
  */
-void dispSetBright(uint8_t bright);
+void dispArrSetBright(uint8_t bright);
 
 
 /**
@@ -63,14 +72,14 @@ void dispArrShowNum(uint32_t num);
 
 /**
  * @brief Show the string given in the display sliding once
- * @param str: string to show
+ * @param str: string to show. max MAX_SLIDE_LEN digits
  */
 void dispArrSlideOnce(char* str);
 
 
 /**
  * @brief Show the string given in the display sliding in a loop
- * @param str: string to show
+ * @param str: string to show. max MAX_SLIDE_LEN digits
  */
 void dispArrSlideLoop(char* str);
 

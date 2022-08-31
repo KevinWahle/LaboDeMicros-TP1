@@ -10,13 +10,13 @@
  ******************************************************************************/
 
 #include "dispArr.h"
-#include "board.h"
+#include "encoder_hal.h"
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 
-void nextMode();
+void nextMode(ENC_STATE state);
 
 /*******************************************************************************
  *******************************************************************************
@@ -28,23 +28,30 @@ void nextMode();
 void App_Init (void)
 {
 	dispArrInit();
-	gpioMode(PIN_SW3, SW3_INPUT_TYPE);
+	encoderInit(nextMode);
 }
 
 /* Función que se llama constantemente en un ciclo infinito */
 void App_Run (void)
 {
 
-	if (gpioRead(PIN_SW3) == SW_ACTIVE) {
-		while(gpioRead(PIN_SW3) == SW_ACTIVE);
-		nextMode();
-	}
+
 
 }
 
-void nextMode() {
+void nextMode(ENC_STATE state) {
 
 	static uint8_t mode = 0;
+
+	if (state == ENC_RIGHT || state == ENC_CLICK) {
+		mode++;
+	}
+	else if (state == ENC_LEFT || state == ENC_LONG) {
+		mode--;
+	}
+	else if (state == ENC_DOUBLE) {
+		mode = 0;
+	}
 
 	switch (mode) {
 
@@ -73,23 +80,23 @@ void nextMode() {
 		break;
 
 	case 6:
-		dispArrShowNum(12345678);
+		dispArrShowNum(56789012);
 		break;
 
 	case 7:
-		dispArrSlideOnce("Un texto bastante largo");		// no paso
+		dispArrSlideOnce("Un texto bastante largo");
 		break;
 
 	case 8:
-		dispArrSlideOnce("Hola");				// no paso
+		dispArrSlideOnce("Hola");
 		break;
 
 	case 9:
-		dispArrSlideLoop("Un texto bastante largo");	// no paso
+		dispArrSlideLoop("Un texto bastante largo");
 		break;
 
 	case 10:
-		dispArrSlideLoop("Hola");		// no paso
+		dispArrSlideLoop("Hola");
 		break;
 
 	case 11:
@@ -100,7 +107,7 @@ void nextMode() {
 		break;
 
 	case 15:
-		dispArrShowSelect("Hola", 4);		// no paso
+		dispArrShowSelect("Hola", 4);
 		break;
 
 	case 16:
@@ -111,7 +118,7 @@ void nextMode() {
 		break;
 
 	case 20:
-		dispArrShowSelect("Mensaje largo", 5);		// no paso
+		dispArrShowSelect("Mensaje largo", 5);
 		break;
 
 	case 21:
@@ -122,7 +129,7 @@ void nextMode() {
 		break;
 
 	case 25:
-		dispArrBlink("Hola", 4);			// no pasa
+		dispArrBlink("Hola", 4);
 		break;
 
 	case 26:
@@ -133,11 +140,11 @@ void nextMode() {
 		break;
 
 	case 30:
-		dispArrBlink("Mensaje largo", 10);		// no paso
+		dispArrBlink("Mensaje largo", 10);
 		break;
 
 	case 31:
-		dispArrClear();
+		dispArrClear();		// Hay que cambiar a modo show
 		break;
 
 	}
@@ -146,8 +153,6 @@ void nextMode() {
 		dispArrSetBright(mode-35);
 		dispArrShowNum(dispArrGetBright());
 	}
-
-	mode++;
 
 }
 
