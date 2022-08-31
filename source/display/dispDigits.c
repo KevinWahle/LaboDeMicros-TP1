@@ -74,23 +74,30 @@ void num2Digit(uint32_t num, dispDigit_t* digits) {
 
 	dispDigit_t* pdig = digits;
 
-	while (num) {
-		*pdig = digitsNum[num%10];	// Get the digits in reverse order
+	if (num) {
+		// num != 0
+		while (num) {
+			*pdig = digitsNum[num%10];	// Get the digits in reverse order
 
-		num /= 10;
-		pdig++;
+			num /= 10;
+			pdig++;
+		}
+
+		while (--pdig > digits) {		// Reverse the order
+
+			dispDigit_t temp = *pdig;
+
+			*pdig = *digits;
+
+			*digits = temp;
+
+			digits++;
+
+		}
 	}
-
-	while (--pdig > digits) {		// Reverse the order
-
-		dispDigit_t temp = *pdig;
-
-		*pdig = *digits;
-
-		*digits = temp;
-
-		digits++;
-
+	else {
+		// num == 0
+		*digits = digitsNum[0];
 	}
 
 

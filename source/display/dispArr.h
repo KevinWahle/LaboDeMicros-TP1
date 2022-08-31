@@ -69,6 +69,12 @@ void dispArrShowForTime(char* str, uint32_t time);
  */
 void dispArrShowNum(uint32_t num);
 
+/**
+ * @brief Show the first DISP_COUNT digits of the number array given in the display
+ * @param numArr: the number array to show (numbers from 0 to 9)
+ */
+void dispArrShowNumArr(uint8_t numArr[DISP_COUNT]);
+
 
 /**
  * @brief Show the string given in the display sliding once
@@ -85,19 +91,17 @@ void dispArrSlideLoop(char* str);
 
 
 /**
- * @brief Show the first DISP_COUNT characters of the string given and choose one to be selected
- * @param str: string to show
+ * @brief Choose one digit to be selected after a call to show by adding DP
  * @param sel: index of the digit to select [0 - (DISP_COUNT-1)]
  */
-void dispArrShowSelect(char* str, uint8_t sel);
+void dispArrSelect(uint8_t sel);
 
 
 /**
- * @brief Show the first DISP_COUNT characters of the string given and select one to blink periodically
- * @param str: string to show
+ * @brief Select one digit to blink periodically after a call to show
  * @param sel: index of the digit to blink [0 - (DISP_COUNT-1)]
  */
-void dispArrBlink(char* str, uint8_t sel);
+void dispArrBlinkSel(uint8_t sel);
 
 
 /**

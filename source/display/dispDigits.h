@@ -64,11 +64,11 @@
 
 #define DISP_J		0b01110000
 
-#define DISP_K	0b00000000		//////////////////////////
+#define DISP_K		0b10101110
 
 #define DISP_L		0b00011100
 
-#define DISP_M		DISP_H	//0b10101000
+#define DISP_M		0b11101100		//DISP_H	//0b10101000
 
 #define DISP_N		0b00101010
 
@@ -86,11 +86,11 @@
 
 #define DISP_U		0b01111100
 
-#define DISP_V		0b00000000		//////////////////////////
+#define DISP_V		0b00111000
 
-#define DISP_W		0b00000000		//////////////////////////
+#define DISP_W		0b10011110
 
-#define DISP_X		0b00000000		//////////////////////////
+#define DISP_X		DISP_H
 
 #define DISP_Y		0b01110110
 

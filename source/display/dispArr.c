@@ -49,7 +49,7 @@
 
 ////// Timers
 
-#define DISP_TIME	2	// Time of each display (milliseconds)
+#define DISP_TIME	3	// Time of each display (milliseconds)
 
 #define TRANS_TIME	250	// Time of digit transition (milliseconds)
 
@@ -73,7 +73,7 @@
 
 ////// Useful macros
 
-#define LIMIT(val, min, max)	( ( (val) >= (min) ) && ( (val) <= (max) ) ? (val) : ( ( (val) < (min) ) ? (min) : (max)) )
+#define LIMIT(val, min, max)	( ( (val) >= (min) ) && ( (val) <= (max) ) ? (val) : ( ( (val) < (min) ) ? (min) : (max) ) )
 
 #define MS2CYC(ms)	((ms)/PISR_TIME)	// Converts milliseconds to PISR cycles
 
@@ -104,7 +104,7 @@ static uint8_t actualDisp = 0;		// Index of array to update
 static dispDigit_t selectedChar;		// Save char to blink
 static uint8_t selectedIndex;
 
-static dispDigit_t slideDigits[MAX_SLIDE_LEN+1];	// Array to copy digits to slide + terminator
+static dispDigit_t slideDigits[MAX_SLIDE_LEN];	// Array to copy digits to slide
 static uint8_t slideLen;
 static uint8_t slideIndex;
 
@@ -143,7 +143,7 @@ static void dispPISR();
  * @param nctrl: number of pins dedicated to control
  * @param sel: display to be selected
  */
-static void dispArrSelect(uint8_t sel);
+static void selectDisp(uint8_t sel);
 
 /**
  * @brief Display the desired value in the display.
@@ -276,6 +276,29 @@ void dispArrShowNum(uint32_t num) {
 
 
 /**
+ * @brief Show the first DISP_COUNT digits of the number array given in the display
+ * @param numArr: the number array to show (numbers from 0 to 9)
+ */
+void dispArrShowNumArr(uint8_t numArr[DISP_COUNT]) {
+
+	setMode(SHOW);
+
+	const dispDigit_t digitsNum[] = DISP_DIGITS_NUM;
+
+	for (int i = 0; i < DISP_COUNT; i++) {
+		uint8_t num = numArr[i];
+		if (num <= 9) {
+			actualDigits[i] = digitsNum[num];
+		}
+		else {
+			actualDigits[i] = DISP_OFF;
+		}
+	}
+
+}
+
+
+/**
  * @brief Show the string given in the display sliding once
  * @param str: string to show
  */
@@ -313,31 +336,26 @@ void dispArrSlideLoop(char* str) {
 
 
 /**
- * @brief Show the first DISP_COUNT characters of the string given and choose one to be selected
- * @param str: string to show
+ * @brief Choose one digit to be selected by adding DP
  * @param sel: index of the digit to select [0 - (DISP_COUNT-1)]
  */
-void dispArrShowSelect(char* str, uint8_t sel) {
+void dispArrSelect(uint8_t sel) {
 
 	setMode(SELECT);
-
-	string2DispArr(str);
 
 	actualDigits[LIMIT(sel, 0, DISP_COUNT-1)] |= DISP_DP;		// Turn on DP on selected digit
 
 }
 
 
+
 /**
- * @brief Show the first DISP_COUNT characters of the string given and select once to blink periodically
- * @param str: string to show
+ * @brief Select one digit to blink periodically
  * @param sel: index of the digit to blink [0 - (DISP_COUNT-1)]
  */
-void dispArrBlink(char* str, uint8_t sel) {
+void dispArrBlinkSel(uint8_t sel) {
 
 	setMode(BLINK);
-
-	string2DispArr(str);
 
 	selectedIndex = LIMIT(sel, 0, DISP_COUNT-1);
 
@@ -345,7 +363,7 @@ void dispArrBlink(char* str, uint8_t sel) {
 
 	// Reset of timers and flags
 	blinkCont = BLINK_CYC-1;
-	blinkOff = false;
+	blinkOff = true;
 
 }
 
@@ -418,26 +436,27 @@ static void dispPISR() {
 	}
 
 	// Display rolling and brightness control.
+	if (actualBright) {
+		if (!dispCont) {
+			rollDisplay();	// actualDisp increment
+			dispCont = DISP_CYC-1;
 
-	if (!dispCont) {
-		rollDisplay();	// actualDisp increment
-		dispCont = DISP_CYC-1;
-
-		dutyCont = ((double)actualBright/MAX_BRIGHT)*DISP_CYC-1;	// Duty reset
-		dutyOff = false;
-	}
-	else {
-		dispCont--;
-	}
-
-	if (!dutyCont) {
-		if (!dutyOff) {
-			dispShow(segments, DISP_OFF);		// Turn off actual display
-			dutyOff = true;		// Dont do it again until next display
+			dutyCont = ((double)actualBright/MAX_BRIGHT)*DISP_CYC;	// Duty reset
+			dutyOff = false;
 		}
-	}
-	else {
-		dutyCont--;
+		else {
+			dispCont--;
+		}
+
+		if (!dutyCont) {
+			if (!dutyOff) {
+				dispShow(segments, DISP_OFF);		// Turn off actual display
+				dutyOff = true;		// Dont do it again until next display
+			}
+		}
+		else {
+			dutyCont--;
+		}
 	}
 
 }
@@ -446,7 +465,7 @@ static void dispPISR() {
  * @brief Set the control output to select the desired display. Control is assumed to be a MUX.
  * @param sel: display to be selected
  */
-static void dispArrSelect(uint8_t sel) {
+static void selectDisp(uint8_t sel) {
 
 	for (int i = 0; i < SEL_PIN_COUNT; i++) {
 		gpioWrite(control[i], sel & 0x1);		// Write last bit
@@ -472,7 +491,7 @@ static void dispShow(dispSegmentsPins_t segments, dispDigit_t digit) {
 
 
 static void rollDisplay() {
-	dispArrSelect(actualDisp);							// Select next display
+	selectDisp(actualDisp);							// Select next display
 	dispShow(segments, actualDigits[actualDisp++]);		// and show next char
 	actualDisp %= DISP_COUNT;							// increment counter and reset
 }
