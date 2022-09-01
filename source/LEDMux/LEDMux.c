@@ -85,6 +85,7 @@ void LEDMuxSet(uint8_t ledN) {
  * @param time: time to show in ms
 */
 void LEDMuxSetForTime(uint8_t ledN, uint32_t time) {
+	LEDMuxSet(ledN);
 	timerStart(timerID, TIMER_MS2TICKS(time), TIM_MODE_SINGLESHOT, LEDMuxOff);
 }
 

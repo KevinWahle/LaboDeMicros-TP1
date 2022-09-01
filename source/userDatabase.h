@@ -47,7 +47,7 @@ void down_menu_del();
 /**
  * @brief borramos el usuario
 */
-void del_user();
+void internal_del_user(uint8_t* id);
 
 /**
  * @brief checkea que el usuario exista en la database
@@ -83,6 +83,11 @@ bool isAdmin(uint8_t* id);
  * @brief true si el usuario es admin, 0 sino.
 */
 void init_Database();
+
+/**
+ * @brief Verifica que la pass no tenga nullchars
+*/
+bool internal_verifyPass(uint8_t* password);
 /*******************************************************************************
  ******************************************************************************/
 

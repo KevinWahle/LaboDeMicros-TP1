@@ -52,6 +52,7 @@ enum EVENTS {
 	TIMEOUT,
 	BACK,	// Para volver atras una vez checkeado cierto dato
 	WAIT,
+	RESET,
 
 	// Evento de Hardware
 	// Botones
@@ -68,7 +69,8 @@ enum EVENTS {
 	ENCODER_LONG,
 
 	// Lector de tarjetas
-	CARD_READY
+	CARD_READY,
+	ERROR_CARD
 };
 
 // Identificadores para diferenciar las distintas opciones 

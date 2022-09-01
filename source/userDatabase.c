@@ -31,18 +31,22 @@ static user database[MAXUSER];
 uint8_t searchUser(uint8_t * id);
 void copyUser();
 uint8_t passwordEquals(uint8_t* password,uint8_t indice);
+bool sameid(uint8_t* id, uint8_t* del_id);
 void updateListDis(uint8_t* id);
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
+
 void init_Database(){
 	database[0] = (user){.id={4,5,1,7,6,6,0,1}, .password={0,1,2,3,NULLCHAR}, .admin=1};
-	database[1] = (user){.id={3,4,5,9,5,7,2,8}, .password={4,5,6,7,8}, .admin=0};
-	database[2] = (user){.id={6,1,0,1,4,2,0,1}, .password={0,7,0,3,NULLCHAR}, .admin=0};
-	usercount = 3;
+	database[1] = (user){.id={4,4,5,4,7,0,7,1}, .password={5,4,3,2,1}, .admin=1};
+	database[2] = (user){.id={3,4,5,9,5,7,2,8}, .password={4,5,6,7,8}, .admin=0};
+	database[3] = (user){.id={2,2,5,0,1,0,4,8}, .password={0,7,0,3,NULLCHAR}, .admin=0};
+	usercount = 4;
 }
+
 void list_init(){
     indice=0;
     updateListDis(database[indice].id);
@@ -56,15 +60,15 @@ void up_menu_del(){
 }
 
 void down_menu_del(){
-    if(indice<MAXUSER){
+    if(indice<usercount-1){
         indice++;
         updateListDis(database[indice].id);
     }
 } 
 
-void del_user(){
-    if(usercount>0){
-        copyUser();
+void internal_del_user(uint8_t* id){
+    if(usercount>0 && !sameid(id, database[indice].id)){
+        copyUser(id);
         usercount--;
         add_event(BACK);
     }
@@ -72,11 +76,11 @@ void del_user(){
 
 void copyUser(){
     for(int i=0; i<IDSIZE; i++){
-        ((database[indice]).id)[i]=((database[usercount]).id)[i];
+        ((database[indice]).id)[i]=((database[usercount-1]).id)[i];
     }
 
     for(int i=0; i<PASSMAX; i++){
-        ((database[indice]).password)[i]=((database[usercount]).password)[i];
+        ((database[indice]).password)[i]=((database[usercount-1]).password)[i];
     }
 }
 
@@ -153,6 +157,11 @@ bool internal_save_pass(uint8_t * id, uint8_t * pass){
         return false;
     }
 
+    for (uint8_t i = 0; i < PASSMIN; i++){
+        if(pass[i] == NULLCHAR)
+            return false;
+    }
+
     for (uint8_t i = 0; i < PASSMAX; i++){
         (database[indice]).password[i] = pass[i];
     }
@@ -165,11 +174,11 @@ bool internal_add_user(uint8_t * id, uint8_t * pass){
 
     else{
         for (uint8_t i = 0; i < IDSIZE; i++){
-            (database[indice]).id[i] = id[i];
+            (database[usercount]).id[i] = id[i];
         }
 
         for (uint8_t i = 0; i < PASSMAX; i++){
-            (database[indice]).password[i] = pass[i];
+            (database[usercount]).password[i] = pass[i];
         }
         usercount++;
     }
@@ -178,6 +187,22 @@ bool internal_add_user(uint8_t * id, uint8_t * pass){
 
 bool isAdmin(uint8_t* id){
 	 return database[searchUser(id)].admin;
+}
+
+bool sameid(uint8_t* id, uint8_t* del_id){
+    for(uint8_t i=0; i<IDSIZE; i++){
+        if(id[i]!=del_id[i])
+            return false;
+    }
+    return true;
+}
+
+bool internal_verifyPass(uint8_t* password){
+    for (uint8_t i = 0; i < PASSMIN; i++){
+        if(password[i] == NULLCHAR)
+            return false;
+    }
+    return true;
 }
 
 /*******************************************************************************

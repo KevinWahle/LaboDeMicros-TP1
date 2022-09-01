@@ -190,7 +190,7 @@ void setUpIDTimer();
 /**
  * @brief Callback Tarjeta Magnética
  */
-void cardCb (bool state, const char* mydata);
+void IDcardCb (bool state, const char* mydata);
 
 /**
  * @brief enciende el timer de inactividad
@@ -201,6 +201,21 @@ void inactivityTimer();
  * @brief Muestra en el display ints
  */
 void updateListDis(uint8_t* id);
+
+/**
+ * @brief Prende led y carga menu para admin
+ */
+void admin_allow_access();
+
+/**
+ * @brief Prende led y carga menu para no admin
+ */
+void user_allow_access();
+
+/**
+ * @brief Verifica que la password sea válida
+ */
+void verifyPass();
 /*******************************************************************************
  ******************************************************************************/
 

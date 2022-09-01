@@ -75,8 +75,16 @@ bool Card2Init(WrapperCardCb funCb){
  ******************************************************************************/
 
 void new_callback (bool state, const data* data){
+	for (int i = 0; i < strlen(data->id); i++) {
+	
+	}
 	if (state==true){
-		memcpy(newId, data->id,ID_SIZE);
+		if (strlen(data->id)>ID_SIZE){
+			memcpy(newId, data->id+(strlen(data->id)-ID_SIZE)*sizeof(char),ID_SIZE);
+		}
+		else{
+			memcpy(newId, data->id,ID_SIZE);
+		}
 		newId[ID_SIZE]='\0';
 		if(strlen(newId)!=ID_SIZE){
 			for (int i = strlen(newId); i < ID_SIZE; i++) {

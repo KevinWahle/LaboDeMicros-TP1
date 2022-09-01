@@ -99,12 +99,16 @@ void upper_id(){
 }
 
 void next_id(){
-    if(digitCounter < IDSIZE -1 ){
+    if(digitCounter < IDSIZE -1 && actual_id[digitCounter]!=NULLCHAR){
         digitCounter++;
         inactivityTimer();
     }
 
-    else{
+    else if(actual_id[digitCounter]==NULLCHAR){
+        inactivityTimer();
+    }
+
+    else if(digitCounter >= IDSIZE -1){
         add_event(ID_READY);
     }
 
@@ -132,11 +136,13 @@ void setUpIDTimer(){
 
 void setIDTimer(){
     timerStart(idTimer, TIMER_MS2TICKS(ID_SHOW_TIME), TIM_MODE_SINGLESHOT, setIDTimer_cb);
-    char char_id[IDSIZE];
+    char char_id[IDSIZE+1];
 
     for(uint8_t digit=0; digit<IDSIZE; digit++){
     	char_id[digit]= (char)actual_id[digit]+'0';
 	}
+
+    char_id[IDSIZE] = '\0';
 
     dispArrSlideOnce(char_id);
 }
@@ -205,19 +211,33 @@ void check_pass(){
 void save_pass(){
     if(internal_save_pass(actual_id, actual_pass))
         add_event(BACK);
+    else
+        add_event(RESET);
 }
 
 void add_user(){
     if(internal_add_user(actual_id, actual_pass))
         add_event(BACK);
+    else
+        add_event(BACK);
 } 
+
+void verifyPass(){
+    if(internal_verifyPass(actual_id))
+        add_event(PASS_READY);
+    else
+        add_event(WRONG_PASS);
+}
 /**********************************************************
 ************************  MENU  ***************************
 **********************************************************/
+void admin_allow_access(){
+    init_admin_menu();
+    LEDMuxSetForTime(2, 5000);
+}
 
 void init_admin_menu(){
     actual_option=0;
-    LEDMuxSetForTime(2, TIMER_MS2TICKS(5000));
     updateMenuDis(admin_menu[actual_option].option);
 }
 
@@ -226,6 +246,7 @@ void up_menu_Admin(){
         actual_option--;
         updateMenuDis(admin_menu[actual_option].option);
     }
+    inactivityTimer();
 }
 
 void down_menu_Admin(){
@@ -233,6 +254,7 @@ void down_menu_Admin(){
         actual_option++;
         updateMenuDis(admin_menu[actual_option].option);
     }
+    inactivityTimer();
 }
 
 void click_menu_Admin(){
@@ -258,10 +280,15 @@ void click_menu_Admin(){
     }
 }
 
+void user_allow_access(){
+    init_menu();
+    LEDMuxSetForTime(2, 5000);
+}
+
 void init_menu(){
     actual_option=0;
-    LEDMuxSetForTime(2, TIMER_MS2TICKS(5000));
     updateMenuDis(user_menu[actual_option].option);
+    inactivityTimer();
 }
 
 void down_menu(){
@@ -269,6 +296,7 @@ void down_menu(){
         actual_option++;
         updateMenuDis(user_menu[actual_option].option);
     }
+    inactivityTimer();
 }
 
 void up_menu(){
@@ -276,6 +304,7 @@ void up_menu(){
         actual_option--;
         updateMenuDis(user_menu[actual_option].option);
     }
+    inactivityTimer();
 }
 
 void click_menu(){
@@ -291,6 +320,10 @@ void click_menu(){
         default:
             break;
     }
+}
+
+void del_user(){
+    internal_del_user(actual_id);
 }
 
 /**********************************************************
@@ -324,7 +357,7 @@ void encoderCallback(ENC_STATE state){
     }
 }
 
-void cardCb (bool state, const char* mydata){
+void IDcardCb (bool state, const char* mydata){
     if(state){
         for(uint8_t digit=0; digit<IDSIZE; digit++)
         {
@@ -332,10 +365,13 @@ void cardCb (bool state, const char* mydata){
         }
         add_event(ID_READY);
     }
+    else{
+        add_event(ERROR_CARD);
+    }
 }
 
 void inactivityTimer(){
-    timerStart(idTimer, TIMER_MS2TICKS(10000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
+    timerStart(idTimer, TIMER_MS2TICKS(30000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
 }
 /**********************************************************
 *********************  DISPLAY   **************************
@@ -395,11 +431,12 @@ void updateMenuDis(char* word) {
 }
 
 void updateListDis(uint8_t* id){
-	char word[IDSIZE];
+	char word[IDSIZE+1];
 	for(uint8_t i=0; i<IDSIZE; i++)
 	{
-		word[i]=id[i];
+		word[i]= id[i] + '0';
 	}
+    word[IDSIZE]='\0';
 	dispArrSlideLoop(word);
 }
 

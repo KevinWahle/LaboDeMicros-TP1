@@ -4,6 +4,14 @@
   @author   Sergio Peralta
  ******************************************************************************/
 
+/*
+	1- Habria que checkear que haya lugares libres antes de cargar el id para
+	agregar el usuario
+	2- Agregar admins?
+	3- Mostrar ID cuando se agregan usuarios con la tarjeta
+	4- Penalizaciones por mal ingreso de passwords
+*/
+
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
@@ -44,7 +52,7 @@ static STATE* p_tabla_estado_actual;
 void App_Init (void)
 {
 	timerInit();
-	Card2Init(cardCb);
+	Card2Init(IDcardCb);
 	encoderInit(encoderCallback);
 	LEDMuxInit();
 	dispArrInit();
