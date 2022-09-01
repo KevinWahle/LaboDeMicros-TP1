@@ -20,9 +20,9 @@
  ******************************************************************************/
 
 
-#define DATA PORTNUM2PIN(PA,1)
-#define CLK PORTNUM2PIN(PB,9)
-#define ENABLE PORTNUM2PIN(PC,17)
+#define DATA	PORTNUM2PIN(PA,1)
+#define CLK		PORTNUM2PIN(PB,9)
+#define ENABLE	PORTNUM2PIN(PC,17)
 //#define TESTPIN PORTNUM2PIN(PB,18)
 
 #define CHAR_0 		0b00001
