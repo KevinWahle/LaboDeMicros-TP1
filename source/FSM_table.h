@@ -32,7 +32,7 @@ struct state_diagram_edge{
 STATE *fsm_interprete(STATE * p_tabla_estado_actual, event_t evento_actual);
 
 extern STATE ID_state[];
-STATE ID_show[]; 
+extern STATE ID_show[];
 extern STATE brillo_state[];
 extern STATE IDError_state[];
 extern STATE Pass_state[];
@@ -60,7 +60,7 @@ STATE ID_show[] = {
     {TIMEOUT, ID_show, check_id},          
     {WRONG_ID, IDError_state, errorScreen},     
     {ID_OK, Pass_state, pass_init},
-    {NULL_EVENT, ID_state, doNothing}
+    {NULL_EVENT, ID_show, doNothing}
 }; 
 
 STATE brillo_state[] = {
@@ -84,7 +84,7 @@ STATE Pass_state[] = {
     {ADMIN_USER, AdminMenu_state, init_admin_menu},
     {NORMAL_USER, UserMenu_state, init_menu},
     {BACK, ID_state, id_init}, 
-    {TIMEOUT, Pass_state, pass_init},
+    {TIMEOUT, ID_state, id_init},
     {NULL_EVENT, Pass_state, doNothing}
 };
 
@@ -108,8 +108,8 @@ STATE changePassA_state[] = {
     {ENCODER_LEFT, changePassA_state, previous_pass}, 
     {ENCODER_RIGHT, changePassA_state, upper_pass},
     {ENCODER_PRESS, changePassA_state, next_pass}, 
-    {ENCODER_LONG, AdminMenu_state, init_admin_menu},
-    {PASS_READY, AdminMenu_state, save_pass},
+    //{ENCODER_LONG, AdminMenu_state, init_admin_menu},
+    {ENCODER_LONG, AdminMenu_state, save_pass},
     {BACK, AdminMenu_state, init_admin_menu},
     {NULL_EVENT, changePassA_state, doNothing}
 };
@@ -161,10 +161,10 @@ STATE changePass_state[] = {
     {ENCODER_LEFT, changePass_state, previous_pass},
     {ENCODER_RIGHT, changePass_state, upper_pass},
     {ENCODER_PRESS, changePass_state, next_pass}, 
-    {ENCODER_LONG, UserMenu_state, init_menu},
-    {PASS_READY, Pass_state, save_pass},
+    //{ENCODER_LONG, UserMenu_state, init_menu},
+    {ENCODER_LONG, changePass_state, save_pass},    //TODO: nuevo estado de error
     {BACK, UserMenu_state, init_menu},
-    {NULL_EVENT, changePassA_state, doNothing}
+    {NULL_EVENT, changePass_state, doNothing}
 };
 
 /*******************************************************************************

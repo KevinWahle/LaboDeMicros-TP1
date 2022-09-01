@@ -40,6 +40,8 @@ void updateListDis(uint8_t* id);
 void init_Database(){
 	database[0] = (user){.id={4,5,1,7,6,6,0,1}, .password={0,1,2,3,NULLCHAR}, .admin=1};
 	database[1] = (user){.id={3,4,5,9,5,7,2,8}, .password={4,5,6,7,8}, .admin=0};
+	database[2] = (user){.id={6,1,0,1,4,2,0,1}, .password={0,7,0,3,NULLCHAR}, .admin=0};
+	usercount = 3;
 }
 void list_init(){
     indice=0;
@@ -81,7 +83,7 @@ void copyUser(){
 bool internal_check_id(uint8_t * id){
     bool found = false;
     bool nullID = false;
-    for (uint8_t i = 0; i < IDSIZE && !NULLCHAR; i++){
+    for (uint8_t i = 0; i < IDSIZE && !nullID; i++){
         if(id[i] == NULLCHAR)
             nullID = true;
     }
@@ -131,7 +133,7 @@ uint8_t searchUser(uint8_t * id){
 
 uint8_t passwordEquals(uint8_t* password,uint8_t indice){
     for(uint8_t digit=0; digit<PASSMAX; digit++){
-        if(password[digit] != ((database[indice]).id)[digit])
+        if(password[digit] != ((database[indice]).password)[digit])
             return false;
     }
     return true; 

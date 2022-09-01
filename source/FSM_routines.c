@@ -23,6 +23,7 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+#define ID_SHOW_TIME	5000
 
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
@@ -86,17 +87,19 @@ void upper_id(){
     {
         actual_id[digitCounter]++;
     }
-    else if(actual_id[digitCounter]==NULLCHAR)
-        actual_id[digitCounter]=0;
-    else
+
+    else if(actual_id[digitCounter]==9)
         actual_id[digitCounter]=0;
 
+    else if(actual_id[digitCounter]==NULLCHAR)
+        actual_id[digitCounter]=0;
+    
     update_display(actual_id, digitCounter, 0);
     inactivityTimer();
 }
 
 void next_id(){
-    if(digitCounter<IDSIZE){
+    if(digitCounter < IDSIZE -1 ){
         digitCounter++;
         inactivityTimer();
     }
@@ -128,7 +131,7 @@ void setUpIDTimer(){
 }
 
 void setIDTimer(){
-    timerStart(idTimer, TIMER_MS2TICKS(2000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
+    timerStart(idTimer, TIMER_MS2TICKS(ID_SHOW_TIME), TIM_MODE_SINGLESHOT, setIDTimer_cb);
     char char_id[IDSIZE];
 
     for(uint8_t digit=0; digit<IDSIZE; digit++){
@@ -169,17 +172,19 @@ void previous_pass(){
 void upper_pass(){
     if (actual_pass[digitCounter]<9)
         actual_pass[digitCounter]++;
-    else if(actual_id[digitCounter]==NULLCHAR)
-        actual_id[digitCounter]=0;
-    else
+
+    else if(actual_pass[digitCounter]==NULLCHAR)
         actual_pass[digitCounter]=0;
 
+    else if(actual_pass[digitCounter]==9)
+        actual_pass[digitCounter]=NULLCHAR;
+    
     update_display(actual_pass, digitCounter, 1);
     inactivityTimer();
 }
 
 void next_pass(){
-    if(digitCounter<PASSMAX){
+    if(digitCounter < PASSMAX-1){
         digitCounter++;
     }
 
@@ -217,15 +222,15 @@ void init_admin_menu(){
 }
 
 void up_menu_Admin(){
-    if (actual_option<ADMIN_MENU_LEN){
-        actual_option++;
+    if (actual_option>0){
+        actual_option--;
         updateMenuDis(admin_menu[actual_option].option);
     }
 }
 
 void down_menu_Admin(){
-    if (actual_option>0){
-        actual_option--;
+    if (actual_option<ADMIN_MENU_LEN-1){
+        actual_option++;
         updateMenuDis(admin_menu[actual_option].option);
     }
 }
@@ -260,7 +265,7 @@ void init_menu(){
 }
 
 void down_menu(){
-    if (actual_option<USER_MENU_LEN){
+    if (actual_option<USER_MENU_LEN-1){
         actual_option++;
         updateMenuDis(user_menu[actual_option].option);
     }
@@ -331,7 +336,6 @@ void cardCb (bool state, const char* mydata){
 
 void inactivityTimer(){
     timerStart(idTimer, TIMER_MS2TICKS(10000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
-
 }
 /**********************************************************
 *********************  DISPLAY   **************************
@@ -362,8 +366,8 @@ void errorScreen() {
 
 void update_display(uint8_t* arr, uint8_t counter, bool password){
 
-	uint8_t dispIndex = counter < (DISP_COUNT-1)? counter: (DISP_COUNT-1);
-	uint8_t dispOffset = counter < DISP_COUNT ? counter : counter - DISP_COUNT*(counter/DISP_COUNT);
+	uint8_t dispIndex = counter < (DISP_COUNT-1) ? counter : (DISP_COUNT-1);
+	uint8_t dispOffset = counter < DISP_COUNT ? 0 : counter - DISP_COUNT*(counter/DISP_COUNT) + 1;
 
 	if (password) {
 
