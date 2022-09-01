@@ -13,15 +13,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "gpio.h"
+#include "timer/timer.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
 
-#define CLK PORTNUM2PIN(PC,9)
-#define DATA PORTNUM2PIN(PC,8)
-#define ENABLE PORTNUM2PIN(PC,0)
+#define DATA PORTNUM2PIN(PA,1)
+#define CLK PORTNUM2PIN(PB,9)
+#define ENABLE PORTNUM2PIN(PC,17)
 //#define TESTPIN PORTNUM2PIN(PB,18)
 
 #define CHAR_0 		0b00001
@@ -69,6 +70,8 @@ enum {SS, PAN, FS, ADDIT, DISCR, ES, ERROR, NOTDATA};
 // Callback called when clock interrupts. Reads data
 static void clkCb ();
 
+static void enCb ();
+
 // Process the data stored in the buffer
 static void readbuff();
 
@@ -95,7 +98,9 @@ static bool read;
 static uint32_t buff_count;
 static data mydata;
 static cardCb mainCb;
+static tim_id_t timer_id;
 
+static uint8_t status;
 
 /*******************************************************************************
  *******************************************************************************
@@ -113,9 +118,11 @@ bool CardInit(cardCb funCb){
 	gpioMode (ENABLE,INPUT);
 	//gpioMode (TESTPIN,OUTPUT);
 
+	timerInit();
 
 	gpioIRQ(CLK, GPIO_IRQ_MODE_FALLING_EDGE, clkCb);	//Set clock falling edge interruption
 
+	timer_id = timerGetId();
 
 	mainCb=funCb;
 
@@ -124,7 +131,7 @@ bool CardInit(cardCb funCb){
 
 	read=false;					// Reset variables
 	buff_count=RESET;
-
+	status = SS;
 	return true;
 }
 
@@ -149,15 +156,22 @@ void clkCb (){
 
 }
 
-void readbuff(){
-	static uint32_t i=RESET;
-	static uint8_t status=SS;
-
+void enCb (){
 	if (gpioRead(ENABLE)){
 		status=SS;
+		timerStop(timer_id);
 	}
+}
+
+void readbuff(){
+	static uint32_t i=RESET;
+
+//	if (gpioRead(ENABLE)){
+//		status=SS;
+//	}
 	if (mybuffer.buff==SEMICOLON && status==SS)			// ; starts the reading
 	{
+		timerStart(timer_id, TIMER_MS2TICKS(100), TIM_MODE_PERIODIC, enCb);
 		i=RESET;
 		buff_count=RESET;
 		read=false;
