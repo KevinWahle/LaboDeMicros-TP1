@@ -11,11 +11,13 @@
 
 #include "FSM_routines.h"
 #include "event_queue/event_queue.h"
-#include "encdec.h"
+#include "encoder_hal.h"
 #include "const.h"
 #include "userDatabase.h"
 #include "timer/timer.h"
 #include <stdio.h>
+#include "display/dispArr.h"
+#include "LEDMux/LEDMux.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
@@ -51,6 +53,7 @@ static uint8_t actual_option = 0;           // Variable que marca la opcion del 
 
 void update_display(uint8_t* arr, uint8_t counter, bool password);
 void updateMenuDis(char* word);
+void setIDTimer_cb();
 
 /*******************************************************************************
  *******************************************************************************
@@ -75,6 +78,7 @@ void previous_id(void){
         digitCounter--;
         update_display(actual_id, digitCounter, 0);
     }
+    inactivityTimer();
 }
 
 void upper_id(){
@@ -87,12 +91,14 @@ void upper_id(){
     else
         actual_id[digitCounter]=0;
 
-    update_display(actual_id, digitCounter, 0);        
+    update_display(actual_id, digitCounter, 0);
+    inactivityTimer();
 }
 
 void next_id(){
     if(digitCounter<IDSIZE){
         digitCounter++;
+        inactivityTimer();
     }
 
     else{
@@ -123,7 +129,13 @@ void setUpIDTimer(){
 
 void setIDTimer(){
     timerStart(idTimer, TIMER_MS2TICKS(2000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
-    dispArrSlideOnce(actual_id);
+    char char_id[IDSIZE];
+
+    for(uint8_t digit=0; digit<IDSIZE; digit++){
+    	char_id[digit]= (char)actual_id[digit]+'0';
+	}
+
+    dispArrSlideOnce(char_id);
 }
 
 void setIDTimer_cb(){
@@ -136,7 +148,7 @@ void setIDTimer_cb(){
 void pass_init(){
     for(int i=0; i<PASSMAX; i++)
     {
-        actual_pass[i]=NULL;
+        actual_pass[i]=NULLCHAR;
     }
     digitCounter=0;
 
@@ -151,6 +163,7 @@ void previous_pass(){
     else{
         add_event(BACK);
     }
+    inactivityTimer();
 }
 
 void upper_pass(){
@@ -162,6 +175,7 @@ void upper_pass(){
         actual_pass[digitCounter]=0;
 
     update_display(actual_pass, digitCounter, 1);
+    inactivityTimer();
 }
 
 void next_pass(){
@@ -170,11 +184,15 @@ void next_pass(){
     }
 
     update_display(actual_pass, digitCounter, 1);
+    inactivityTimer();
 }
 
 void check_pass(){
     if(internal_check_pass(actual_id, actual_pass))
-        add_event(PASS_OK);
+        if(isAdmin(actual_id))
+        	add_event(ADMIN_USER);
+		else
+			add_event(NORMAL_USER);
     else
         add_event(WRONG_PASS);
 }  
@@ -194,6 +212,7 @@ void add_user(){
 
 void init_admin_menu(){
     actual_option=0;
+    LEDMuxSetForTime(2, TIMER_MS2TICKS(5000));
     updateMenuDis(admin_menu[actual_option].option);
 }
 
@@ -236,6 +255,7 @@ void click_menu_Admin(){
 
 void init_menu(){
     actual_option=0;
+    LEDMuxSetForTime(2, TIMER_MS2TICKS(5000));
     updateMenuDis(user_menu[actual_option].option);
 }
 
@@ -272,7 +292,6 @@ void click_menu(){
 ********************  CALLBACKS  *************************
 **********************************************************/
 
-//TODO: Agregar al .h
 void encoderCallback(ENC_STATE state){
     switch(state){
         case ENC_LEFT:
@@ -304,7 +323,7 @@ void cardCb (bool state, const char* mydata){
     if(state){
         for(uint8_t digit=0; digit<IDSIZE; digit++)
         {
-            actual_id[digit]= (uint8_t)mydata[digit];
+            actual_id[digit]= (uint8_t)(mydata[digit]-'0');
         }
         add_event(ID_READY);
     }
@@ -341,10 +360,9 @@ void errorScreen() {
 }
 
 
-void update_display(int* arr, int counter, bool password) {
+void update_display(uint8_t* arr, uint8_t counter, bool password){
 
-	uint8_t dispIndex = min(counter, DISP_COUNT-1);
-
+	uint8_t dispIndex = counter < (DISP_COUNT-1)? counter: (DISP_COUNT-1);
 	uint8_t dispOffset = counter < DISP_COUNT ? counter : counter - DISP_COUNT*(counter/DISP_COUNT);
 
 	if (password) {
@@ -355,9 +373,9 @@ void update_display(int* arr, int counter, bool password) {
 			strArr[i] = '-';
 		}
 
-		strArr[dispIndex] = arr[counter];
+		strArr[dispIndex] = (char) arr[counter]+'0';
 
-		dispArrShowNumArr(strArr);
+		dispArrShow(strArr);
 		
 	}
 	else {
@@ -372,9 +390,19 @@ void updateMenuDis(char* word) {
 	dispArrSlideLoop(word);
 }
 
+void updateListDis(uint8_t* id){
+	char word[IDSIZE];
+	for(uint8_t i=0; i<IDSIZE; i++)
+	{
+		word[i]=id[i];
+	}
+	dispArrSlideLoop(word);
+}
+
 /**********************************************************
 *********************  VARIOUS   **************************
 **********************************************************/
 void doNothing() {
     return;
 }
+

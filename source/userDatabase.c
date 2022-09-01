@@ -12,6 +12,12 @@
 #include "event_queue/event_queue.h"
 #include "userDatabase.h"
 
+typedef struct{
+    uint8_t id[IDSIZE];
+    uint8_t password[PASSMAX];
+    uint8_t admin;
+} user;
+
 /*******************************************************************************
  * GLOBAL VARIABLES
  ******************************************************************************/
@@ -19,36 +25,38 @@ static uint16_t indice;
 static uint16_t usercount;
 static user database[MAXUSER];
 
-
-typedef struct{
-    uint8_t id[IDSIZE];
-    uint8_t password[PASSMAX];
-} user;
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
 uint8_t searchUser(uint8_t * id);
+void copyUser();
+uint8_t passwordEquals(uint8_t* password,uint8_t indice);
+void updateListDis(uint8_t* id);
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
  *******************************************************************************
  ******************************************************************************/
+void init_Database(){
+	database[0] = (user){.id={4,5,1,7,6,6,0,1}, .password={0,1,2,3,NULLCHAR}, .admin=1};
+	database[1] = (user){.id={3,4,5,9,5,7,2,8}, .password={4,5,6,7,8}, .admin=0};
+}
 void list_init(){
     indice=0;
-    updateMenuDis(database[indice].id);
+    updateListDis(database[indice].id);
 }
 
 void up_menu_del(){
     if(indice>0){
         indice--;
-        updateMenuDis(database[indice].id);    
+        updateListDis(database[indice].id);
     }
 }
 
 void down_menu_del(){
     if(indice<MAXUSER){
         indice++;
-        updateMenuDis(database[indice].id);
+        updateListDis(database[indice].id);
     }
 } 
 
@@ -70,7 +78,7 @@ void copyUser(){
     }
 }
 
-bool internal_check_id(const uint8_t * id){
+bool internal_check_id(uint8_t * id){
     bool found = false;
     bool nullID = false;
     for (uint8_t i = 0; i < IDSIZE && !NULLCHAR; i++){
@@ -130,7 +138,7 @@ uint8_t passwordEquals(uint8_t* password,uint8_t indice){
 }
    
 
-void internal_used_id(uint8_t * id){
+bool internal_used_id(uint8_t * id){
     if(searchUser(id)!=MAXUSER) // Verifico si el usuario existe
         return true;
 
@@ -163,6 +171,11 @@ bool internal_add_user(uint8_t * id, uint8_t * pass){
         }
         usercount++;
     }
+    return true;
+}
+
+bool isAdmin(uint8_t* id){
+	 return database[searchUser(id)].admin;
 }
 
 /*******************************************************************************
