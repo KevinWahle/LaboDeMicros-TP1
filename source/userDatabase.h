@@ -93,6 +93,16 @@ bool internal_verifyPass(uint8_t* password);
  * @brief Avisa si hay memoria para guardar el nuevo usuario
 */
 bool avaliableUsers();
+
+/**
+ * @brief Cambia el tipo de usuario
+*/
+void toggleUser();
+
+/**
+ * @brief Incica el tipo de usuario
+*/
+uint8_t actualType();
 /*******************************************************************************
  ******************************************************************************/
 

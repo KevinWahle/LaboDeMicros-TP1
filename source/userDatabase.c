@@ -12,18 +12,22 @@
 #include "event_queue/event_queue.h"
 #include "userDatabase.h"
 
+
+
+/*******************************************************************************
+ * GLOBAL VARIABLES
+ ******************************************************************************/
 typedef struct{
     uint8_t id[IDSIZE];
     uint8_t password[PASSMAX];
     uint8_t admin;
 } user;
 
-/*******************************************************************************
- * GLOBAL VARIABLES
- ******************************************************************************/
 static uint16_t indice;
 static uint16_t usercount;
 static user database[MAXUSER];
+bool userType;
+
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
@@ -180,6 +184,8 @@ bool internal_add_user(uint8_t * id, uint8_t * pass){
         for (uint8_t i = 0; i < PASSMAX; i++){
             (database[usercount]).password[i] = pass[i];
         }
+
+        (database[usercount]).admin=userType;
         usercount++;
     }
     return true;
@@ -210,6 +216,18 @@ bool avaliableUsers(){
         return false;
     else
         return true;
+}
+
+void toggleUser(){
+    userType = !userType;
+}
+
+uint8_t actualType(){
+    if(userType){
+        return ADMIN;
+    }
+    else 
+        return NORMAL;
 }
 /*******************************************************************************
  ******************************************************************************/

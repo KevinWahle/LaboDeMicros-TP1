@@ -22,8 +22,9 @@
 #define PASSMAX	5
 #define NULLCHAR 10
 #define MAXUSER	100
-#define ERROR_MSG	"Error de autorizacion"
-
+#define INACTIVITYTIME 30000
+#define PASSRETENTION 10000
+#define ERROR_MSG	"Error"
 enum EVENTS {
 	
 	// Eventos de Software
@@ -80,6 +81,11 @@ enum IDS{
 	ADD_ID,
 	DEL_ID,
 	EXIT_ID,
+};
+
+enum USERS{
+	NORMAL,
+	ADMIN
 };
 
 /*******************************************************************************

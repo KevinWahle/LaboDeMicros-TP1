@@ -45,6 +45,10 @@ MENU_ITEM user_menu[] = {
                             {.option = "BACK", .ID = EXIT_ID},
                         };
 
+MENU_ITEM type_menu[] = {  
+                            {.option = "NORMAL", .ID = NORMAL},
+                            {.option = "ADMIN", .ID = ADMIN},
+                        };
 
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -79,6 +83,8 @@ void previous_id(void){
         digitCounter--;
         update_display(actual_id, digitCounter, 0);
     }
+    else
+        add_event(BACK);
     inactivityTimer();
 }
 
@@ -326,6 +332,18 @@ void del_user(){
     internal_del_user(actual_id);
 }
 
+
+void init_type_menu(){
+    updateMenuDis(type_menu[actualType()].option);
+    inactivityTimer();
+}
+
+void toggleType(){
+    toggleUser();
+    updateMenuDis(type_menu[actualType()].option);
+    inactivityTimer();
+}
+
 /**********************************************************
 ********************  CALLBACKS  *************************
 **********************************************************/
@@ -371,7 +389,7 @@ void IDcardCb (bool state, const char* mydata){
 }
 
 void inactivityTimer(){
-    timerStart(idTimer, TIMER_MS2TICKS(30000), TIM_MODE_SINGLESHOT, setIDTimer_cb);
+    timerStart(idTimer, TIMER_MS2TICKS(INACTIVITYTIME), TIM_MODE_SINGLESHOT, setIDTimer_cb);
 }
 /**********************************************************
 *********************  DISPLAY   **************************
@@ -397,6 +415,11 @@ void inc_bright() {
 // La pantalla de error es la misma para todos los estados
 void errorScreen() {
 	dispArrSlideLoop(ERROR_MSG);
+}
+
+void errorPassScreen(){
+    errorScreen();
+    timerStart(idTimer, TIMER_MS2TICKS(PASSRETENTION), TIM_MODE_SINGLESHOT, setIDTimer_cb);
 }
 
 

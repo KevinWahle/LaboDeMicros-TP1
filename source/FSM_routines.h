@@ -168,6 +168,16 @@ void down_menu_del();
 void del_user();
 
 /**
+ * @brief Reiniciamos el selector y actualizamos el display
+*/
+void init_type_menu();
+
+/**
+ * @brief subimos en el menú de tipo de usuario
+*/
+void toggleType();
+
+/**
  * @brief Callback del Enconder
 */
 void encoderCallback(ENC_STATE state);
@@ -216,6 +226,11 @@ void user_allow_access();
  * @brief Verifica que la password sea válida
  */
 void verifyPass();
+
+/**
+ * @brief Muestra el mensaje de error y inicia el timer de demora
+ */
+void errorPassScreen();
 /*******************************************************************************
  ******************************************************************************/
 
