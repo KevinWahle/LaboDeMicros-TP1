@@ -205,5 +205,11 @@ bool internal_verifyPass(uint8_t* password){
     return true;
 }
 
+bool avaliableUsers(){
+    if(usercount>=MAXUSER)
+        return false;
+    else
+        return true;
+}
 /*******************************************************************************
  ******************************************************************************/
