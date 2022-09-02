@@ -1,7 +1,7 @@
 /***************************************************************************//**
-  @file     +Magtek.h+
-  @brief    +Mangetic stripe reader+
-  @author   +Group 5+
+  @file     Magtek.h
+  @brief    Mangetic stripe reader
+  @author   Group 5
  ******************************************************************************/
 
 
@@ -69,6 +69,7 @@ enum {SS, PAN, FS, ADDIT, DISCR, ES, ERROR, NOTDATA};
 // Callback called when clock interrupts. Reads data
 static void clkCb ();
 
+// Callback called when enable interrupts. Cancells reading
 static void enCb ();
 
 // Process the data stored in the buffer
@@ -85,13 +86,12 @@ static void clear();
  ******************************************************************************/
 
 static buffer mybuffer;
-static bool read;
 static uint32_t buff_count;
 static data mydata;
 static cardCb mainCb;
 static tim_id_t timer_id;
-
 static uint8_t status;
+static bool read;
 
 /*******************************************************************************
  *******************************************************************************

@@ -1,7 +1,7 @@
 /***************************************************************************//**
-  @file     +MagtekWrapper.h+
-  @brief    +Mangetic stripe wrapper for 8 digit Id+
-  @author   +Group 5+
+  @file     MagtekWrapper.h
+  @brief    Mangetic stripe wrapper for 8 digit Id
+  @author   Group 5
  ******************************************************************************/
 
 #ifndef MAGTEKWRAPPER_H_

@@ -10,9 +10,6 @@
 
 #include "MagtekWrapper.h"
 #include "board.h"
-#include "gpio.h"
-#include "timer/SysTick.h"
-#include "hardware.h"
 #include <stdio.h>
 
 /*******************************************************************************
@@ -28,20 +25,16 @@ void callback (bool state, const char* data);
  *******************************************************************************
  ******************************************************************************/
 
-/* Función que se llama 1 vez, al comienzo del programa */
+
 void App_Init (void)
 {
-    gpioMode(PIN_SW3, INPUT);					//Ya es pulldown electricamente
-    gpioMode(PIN_SW2, INPUT_PULLDOWN);					//Ya es pulldown electricamente
 
-    //SysTick_Init(callback);
    mainCb=*callback;
    Card2Init (mainCb);
 
 
 }
 
-/* Función que se llama constantemente en un ciclo infinito */
 void App_Run (void)
 {
 	static int k;

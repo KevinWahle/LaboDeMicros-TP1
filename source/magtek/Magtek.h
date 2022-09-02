@@ -1,7 +1,7 @@
 /***************************************************************************//**
-  @file     +Magtek.h+
-  @brief    +Mangetic stripe reader+
-  @author   +Group 5+
+  @file     Magtek.h
+  @brief    Mangetic stripe reader
+  @author   Group 5
  ******************************************************************************/
 
 #ifndef _MAGTEK_H_
