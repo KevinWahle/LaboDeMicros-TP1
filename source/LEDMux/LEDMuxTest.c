@@ -1,8 +1,7 @@
 /***************************************************************************//**
-  @file		dispTest.c
-  @brieef	Testbench para las funciones de dispArr
-  @author	Sergio Peralta
-  @date		30 ago. 2022
+  @file		LEDMuxTest.c
+  @brieef	Testbench para las funciones del manejo de leds de la placa
+  @author	Grupo 5
  ******************************************************************************/
 
 /*******************************************************************************

@@ -1,7 +1,7 @@
 /*******************************************************************************
   @file     +FSM_table.h+
   @brief    +Tabla de estados de la maquina de estados+
-  @author   +Grupo 3+
+  @author   +Grupo 5+
  ******************************************************************************/
 
 #ifndef FSM_TABLE_H

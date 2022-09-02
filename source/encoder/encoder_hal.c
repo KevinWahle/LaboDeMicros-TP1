@@ -1,10 +1,16 @@
+/***************************************************************************//**
+  @file     encoder_hal.c
+  @brief    Funciones para manejo del encoder
+  @author   Grupo 5
+ ******************************************************************************/
+
 #include "encoder_hal.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include "gpio.h"
+#include "MCAL/gpio.h"
 #include "timer/timer.h"
 
-#define LONG_PRESS_TIME 2000
+#define LONG_PRESS_TIME 700
 #define DOUBLE_CLICK_TIME 400
 
 typedef enum {IDLE_ENCODER, LEFT_TRANS, RIGHT_TRANS} SM_ENCODER;
@@ -27,9 +33,6 @@ static tim_id_t doublePressedTimerID;
 static void smEnconder(void);
 
 static encoderCb funCb;
-
-static void cb(void);
-
 
 
 bool encoderInit( encoderCb funCbParam ){
@@ -84,8 +87,8 @@ static void smEnconder(void){
 	case IDLE_BUTTON:
 		if(!gpioRead(button)){
 			state_button = C1;
-			timerStart(longPressedTimerID, TIMER_MS2TICKS(LONG_PRESS_TIME), TIM_MODE_SINGLESHOT, cb);
-			timerStart(doublePressedTimerID, TIMER_MS2TICKS(DOUBLE_CLICK_TIME), TIM_MODE_SINGLESHOT, cb);
+			timerStart(longPressedTimerID, TIMER_MS2TICKS(LONG_PRESS_TIME), TIM_MODE_SINGLESHOT, NULL);
+			timerStart(doublePressedTimerID, TIMER_MS2TICKS(DOUBLE_CLICK_TIME), TIM_MODE_SINGLESHOT, NULL);
 		}
 		break;
 	case C1:
@@ -109,7 +112,7 @@ static void smEnconder(void){
 			state_button = IDLE_BUTTON;
 		if(!gpioRead(button)){
 			state_button = C3;
-			timerStart(longPressedTimerID, TIMER_MS2TICKS(LONG_PRESS_TIME), TIM_MODE_SINGLESHOT, cb);
+			timerStart(longPressedTimerID, TIMER_MS2TICKS(LONG_PRESS_TIME), TIM_MODE_SINGLESHOT, NULL);
 		}
 		break;
 	case C3:
@@ -133,8 +136,4 @@ static void smEnconder(void){
 	//gpioWrite(PORTNUM2PIN(PD, 1), LOW);
 
 }
-
-static void cb(void){
-}
-
 

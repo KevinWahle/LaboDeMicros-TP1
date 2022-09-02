@@ -12,7 +12,7 @@
 #include "Magtek.h"
 #include <stdlib.h>
 #include <stdint.h>
-#include "gpio.h"
+#include "MCAL/gpio.h"
 #include "timer/timer.h"
 
 /*******************************************************************************

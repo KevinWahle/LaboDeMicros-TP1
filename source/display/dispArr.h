@@ -2,7 +2,7 @@
 /***************************************************************************//**
   @file     dispArr.h
   @brief    Functions for 7 segment display array
-  @author   Sergio Peralta
+  @author   Grupo 5
  ******************************************************************************/
 
 #ifndef _DISPARR_H_

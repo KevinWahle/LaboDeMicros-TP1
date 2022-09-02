@@ -1,7 +1,7 @@
 /***************************************************************************//**
   @file     dispArr.c
   @brief    Functions for 7 segment display array
-  @author   Sergio Peralta
+  @author   Grupo 5
  ******************************************************************************/
 
 /*******************************************************************************
@@ -11,7 +11,7 @@
 #include "dispArr.h"
 #include "dispDigits.h"
 #include "timer/timer.h"
-#include "gpio.h"
+#include "MCAL/gpio.h"
 #include <stdlib.h>
 #include <string.h>
 

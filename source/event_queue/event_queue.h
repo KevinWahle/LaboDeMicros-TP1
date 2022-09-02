@@ -1,7 +1,7 @@
 /***************************************************************************//**
   @file     +event_queue.h+
   @brief    +Archivo header del módulo event_queue, para crear una cola de eventos+
-  @author   +Grupo 3+
+  @author   +Grupo 5+
  ******************************************************************************/
 
 #ifndef _EVENT_QUEUE_H_

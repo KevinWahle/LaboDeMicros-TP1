@@ -1,7 +1,7 @@
 /***************************************************************************//**
   @file     SysTick.h
   @brief    SysTick driver
-  @author   Nicol�s Magliola
+  @author   Nicolas Magliola
  ******************************************************************************/
 
 #ifndef _SYSTICK_H_

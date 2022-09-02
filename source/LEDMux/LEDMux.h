@@ -1,8 +1,7 @@
 /***************************************************************************//**
   @file     LEDMux.h
   @brief    Funciones para manejo de los LEDs mediante MUX
-  @author   Sergio Peralta
-  @date		31 ago. 2022
+  @author   Grupo 5
  ******************************************************************************/
 
 #ifndef _LEDMUX_LEDMUX_H_

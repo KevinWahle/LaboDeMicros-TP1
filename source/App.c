@@ -1,7 +1,7 @@
 /***************************************************************************//**
   @file     App.c
-  @brief    TP!: Access Control
-  @author   Sergio Peralta
+  @brief    TP1: Access Control
+  @author   Grupo 5
  ******************************************************************************/
 
 /*******************************************************************************
@@ -10,13 +10,13 @@
 #include "const.h"
 #include "FSM_table.h"
 #include "FSM_routines.h"
-#include "userDatabase.h"
 #include "event_queue/event_queue.h"
-#include "display/dispArr.h"
-#include "magtek/MagtekWrapper.h"
-#include "encoder_hal.h"
-#include "LEDMux/LEDMux.h"
+#include "userDatabase.h"
 #include "timer/timer.h"
+#include "magtek/MagtekWrapper.h"
+#include "display/dispArr.h"
+#include "encoder/encoder_hal.h"
+#include "LEDMux/LEDMux.h"
 
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE

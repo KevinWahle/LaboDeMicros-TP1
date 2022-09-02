@@ -2,7 +2,7 @@
   @file     +FSM_routines.c+
   @brief    +Funciones que conforman las rutas de acción entre los diferentes
             estados de la FSM.+
-  @author   +Grupo 3+
+  @author   +Grupo 5+
  ******************************************************************************/
 
 /*******************************************************************************
@@ -11,7 +11,7 @@
 
 #include "FSM_routines.h"
 #include "event_queue/event_queue.h"
-#include "encoder_hal.h"
+#include "encoder/encoder_hal.h"
 #include "const.h"
 #include "userDatabase.h"
 #include "timer/timer.h"

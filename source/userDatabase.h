@@ -1,7 +1,7 @@
 /***************************************************************************//**
-  @file     gpio.h
-  @brief    Simple GPIO Pin services, similar to Arduino
-  @author   Nicolas Magliola
+  @file     userDatabase.h
+  @brief    Manejo de la base de datos de acceso
+  @author   Grupo 5
  ******************************************************************************/
 
 #ifndef _DATABASE_H_

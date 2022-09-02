@@ -1,7 +1,8 @@
-/******************************************************************************
-  @file     userDataBase.c
-  @brief    Base de datos de usuarios
-  @author   Fran Basili
+/***************************************************************************//**
+  @file     +FSM_routines.h+
+  @brief    +Funciones que conforman las rutas de acción entre los diferentes
+            estados de la FSM.+
+  @author   +Grupo 5+
  ******************************************************************************/
 
 #ifndef _FSM_ROUTINES_H_
@@ -10,7 +11,8 @@
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
-#include "encoder_hal.h"
+
+#include "encoder/encoder_hal.h"
 #include "stdint.h"
 
 /*******************************************************************************

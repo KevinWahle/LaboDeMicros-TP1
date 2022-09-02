@@ -1,8 +1,7 @@
 /***************************************************************************//**
-  @file		dispTest.c
-  @brieef	Testbench para las funciones de dispArr
-  @author	Sergio Peralta
-  @date		30 ago. 2022
+  @file		dispEncTest.c
+  @brieef	Testbench para las funciones de dispArr con Encoder
+  @author	Grupo 5
  ******************************************************************************/
 
 /*******************************************************************************
