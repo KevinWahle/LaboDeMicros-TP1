@@ -148,16 +148,16 @@ static void selectDisp(uint8_t sel);
  * @param segments[8]: pin array with the pins of the segments (according PORTNUM2PIN).
  * @param digit: states of the pins of each segment in the display (according DispDigits)
  */
-static void dispShow(dispSegmentsPins_t segments, dispDigit_t digit);
+static void dispShow(const dispSegmentsPins_t segments, dispDigit_t digit);
 
 static void rollDisplay();
 
 static void loopDigits();
 
-static void string2DispArr(char* str);
+static void string2DispArr(const char* str);
 
 // Copy the string to slideDigits after allocation
-static void retrieveSlideString(char* str);
+static void retrieveSlideString(const char* str);
 
 
 static void setMode(DISPLAY_MODES mode);
@@ -212,6 +212,13 @@ uint8_t dispArrGetBright() {
  */
 void dispArrSetBright(int8_t bright) {
 	actualBright = LIMIT(bright, 0, MAX_BRIGHT);
+
+	if (actualBright == 0) {
+		for (int i = 0 ; i < DISP_COUNT; i++) {
+			dispShow(segments, DISP_OFF);
+		}
+	}
+
 }
 
 
@@ -219,7 +226,7 @@ void dispArrSetBright(int8_t bright) {
  * @brief Show the first DISP_COUNT characters of the string given in the display
  * @param str: string to show
  */
-void dispArrShow(char* str) {
+void dispArrShow(const char* str) {
 
 	setMode(SHOW);
 
@@ -233,7 +240,7 @@ void dispArrShow(char* str) {
  * @param str: string to show
  * @param time: the time in milliseconds
  */
-void dispArrShowForTime(char* str, uint32_t time) {
+void dispArrShowForTime(const char* str, uint32_t time) {
 
 	setMode(TIMED);
 
@@ -277,7 +284,7 @@ void dispArrShowNum(uint32_t num) {
  * @brief Show the first DISP_COUNT digits of the number array given in the display
  * @param numArr: the number array to show (numbers from 0 to 9)
  */
-void dispArrShowNumArr(uint8_t numArr[DISP_COUNT]) {
+void dispArrShowNumArr(const uint8_t numArr[DISP_COUNT]) {
 
 	setMode(SHOW);
 
@@ -300,7 +307,7 @@ void dispArrShowNumArr(uint8_t numArr[DISP_COUNT]) {
  * @brief Show the string given in the display sliding once
  * @param str: string to show
  */
-void dispArrSlideOnce(char* str) {
+void dispArrSlideOnce(const char* str) {
 
 	setMode(ONCE);
 
@@ -319,7 +326,7 @@ void dispArrSlideOnce(char* str) {
  * @brief Show the string given in the display sliding in a loop
  * @param str: string to show
  */
-void dispArrSlideLoop(char* str) {
+void dispArrSlideLoop(const char* str) {
 
 	setMode(LOOP);
 
@@ -478,7 +485,7 @@ static void selectDisp(uint8_t sel) {
  * @param segments[8]: pin array with the pins of the segments (according PORTNUM2PIN).
  * @param digit: states of the pins of each segment in the display (according DispDigits)
  */
-static void dispShow(dispSegmentsPins_t segments, dispDigit_t digit) {
+static void dispShow(const dispSegmentsPins_t segments, dispDigit_t digit) {
 
 	for (int i = (SEGMENTS_COUNT-1); i >= 0; i--) {		// Reverse order (MSB is a)
 		gpioWrite(segments[i], digit & 0x1);	// Write bit
@@ -525,7 +532,7 @@ static void setMode(DISPLAY_MODES mode) {
 }
 
 // From string to actualDigits (clamper)
-static void string2DispArr(char* str) {
+static void string2DispArr(const char* str) {
 
 	for(uint8_t i = 0; i < DISP_COUNT; i++) {
 
@@ -541,7 +548,7 @@ static void string2DispArr(char* str) {
 }
 
 // Copy the string to slideDigits after allocation
-static void retrieveSlideString(char* str) {
+static void retrieveSlideString(const char* str) {
 
 	slideLen = strlen(str);
 

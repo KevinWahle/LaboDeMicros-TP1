@@ -131,7 +131,7 @@ dispDigit_t char2Digit(char c);
  * @param *s: the string.
  * @param digits: array of digits that generates s in the display (according DispDigits)
  */
-void string2Digit(char* s, dispDigit_t* digits);
+void string2Digit(const char* s, dispDigit_t* digits);
 
 
 /**

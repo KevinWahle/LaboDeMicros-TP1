@@ -52,7 +52,7 @@ void dispArrSetBright(int8_t bright);
  * @brief Show the first DISP_COUNT characters of the string given in the display
  * @param str: string to show
  */
-void dispArrShow(char* str);
+void dispArrShow(const char* str);
 
 
 /**
@@ -60,7 +60,7 @@ void dispArrShow(char* str);
  * @param str: string to show
  * @param time: the time in milliseconds
  */
-void dispArrShowForTime(char* str, uint32_t time);
+void dispArrShowForTime(const char* str, uint32_t time);
 
 
 /**
@@ -73,21 +73,21 @@ void dispArrShowNum(uint32_t num);
  * @brief Show the first DISP_COUNT digits of the number array given in the display
  * @param numArr: the number array to show (numbers from 0 to 9)
  */
-void dispArrShowNumArr(uint8_t numArr[DISP_COUNT]);
+void dispArrShowNumArr(const uint8_t numArr[DISP_COUNT]);
 
 
 /**
  * @brief Show the string given in the display sliding once
  * @param str: string to show. max MAX_SLIDE_LEN digits
  */
-void dispArrSlideOnce(char* str);
+void dispArrSlideOnce(const char* str);
 
 
 /**
  * @brief Show the string given in the display sliding in a loop
  * @param str: string to show. max MAX_SLIDE_LEN digits
  */
-void dispArrSlideLoop(char* str);
+void dispArrSlideLoop(const char* str);
 
 
 /**
