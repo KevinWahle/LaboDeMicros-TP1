@@ -88,6 +88,11 @@ void init_Database();
  * @brief Verifica que la pass no tenga nullchars
 */
 bool internal_verifyPass(uint8_t* password);
+
+/**
+ * @brief Avisa si hay memoria para guardar el nuevo usuario
+*/
+bool avaliableUsers();
 /*******************************************************************************
  ******************************************************************************/
 

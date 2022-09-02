@@ -124,7 +124,7 @@ void check_id(void){
 } 
 
 void used_id(){
-    if(internal_used_id(actual_id))
+    if(internal_used_id(actual_id) || !avaliableUsers())
         add_event(WRONG_ID);
     else
         add_event(ID_OK);

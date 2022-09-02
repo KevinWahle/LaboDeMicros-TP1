@@ -39,6 +39,7 @@ extern STATE Pass_state[];
 extern STATE PassError_state[];
 extern STATE changePass_state[];
 extern STATE addID_state[];
+extern STATE add_ID_show[];
 extern STATE addError_state[];
 extern STATE addPass_state[];
 extern STATE delUser_state[];
@@ -121,11 +122,18 @@ STATE addID_state[] = {
     {ENCODER_RIGHT, addID_state, upper_id}, 
     {ENCODER_PRESS, addID_state, next_id}, 
     {ENCODER_LONG, AdminMenu_state, init_admin_menu},
-    {ID_READY, addID_state, used_id},   
+    {ID_READY, add_ID_show, setIDTimer},
     {WRONG_ID, addError_state, errorScreen},     
     {ID_OK, addPass_state, pass_init},
     {NULL_EVENT, addID_state, doNothing}
 };
+
+STATE add_ID_show[] = {
+    {TIMEOUT, add_ID_show, used_id},          
+    {WRONG_ID, addID_state, id_init},     
+    {ID_OK, Pass_state, pass_init},
+    {NULL_EVENT, add_ID_show, doNothing}
+}; 
 
 STATE addError_state[] = {
     {ENCODER_PRESS, addID_state, id_init},

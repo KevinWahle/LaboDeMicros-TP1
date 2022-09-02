@@ -6,7 +6,7 @@
 
 /*
 	1- Habria que checkear que haya lugares libres antes de cargar el id para
-	agregar el usuario
+	agregar el usuario OK
 	2- Agregar admins?
 	3- Mostrar ID cuando se agregan usuarios con la tarjeta
 	4- Penalizaciones por mal ingreso de passwords
