@@ -13,22 +13,17 @@
 
 #include <stdbool.h>
 
-
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
-
-
 
 #define PAN_MAX_L	19
 #define ADDIT_L		7
 #define DISCR_L		8
 
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
-
 
 typedef struct {
 	char id[PAN_MAX_L];
@@ -38,16 +33,9 @@ typedef struct {
 
 typedef void (*cardCb) (bool state, const data* mydata);
 
-
-/*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
-
 
 /**
  * @brief: Initialize pins and set intrruption for Magtek
@@ -55,7 +43,6 @@ typedef void (*cardCb) (bool state, const data* mydata);
  * @return initialization succeed
 */
 bool CardInit(cardCb funCb);
-
 
 /*******************************************************************************
  ******************************************************************************/

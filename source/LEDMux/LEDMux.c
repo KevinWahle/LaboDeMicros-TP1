@@ -40,7 +40,6 @@ tim_id_t timerID;
 
 void muxWrite(uint8_t num);
 
-
 /*******************************************************************************
  * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -75,6 +74,7 @@ int LEDMuxInit() {
 */
 void LEDMuxSet(uint8_t ledN) {
 	muxWrite(ledN);
+	timerStop(timerID);		// Stop timer if was active
 }
 
 
@@ -94,6 +94,7 @@ void LEDMuxSetForTime(uint8_t ledN, uint32_t time) {
 */
 void LEDMuxOff() {
 	muxWrite(LED_OFF);
+	timerStop(timerID);		// Stop timer if was active
 }
 
 /*******************************************************************************

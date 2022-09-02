@@ -24,15 +24,16 @@
  ******************************************************************************/
 
 #define ID_SHOW_TIME	5000
+#define ADMIN_MENU_LEN	4
+#define USER_MENU_LEN	2
+#define INACTIVITYTIME 	30000
+#define PASSRETENTION 	10000
+#define OPENTIME		5000
+#define ERROR_MSG		"Error"
 
 /*******************************************************************************
  * VARIABLES WITH GLOBAL SCOPE
  ******************************************************************************/
-static uint8_t actual_id[IDSIZE]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
-static uint8_t actual_pass[PASSMAX]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
-static uint8_t digitCounter;
-static tim_id_t idTimer;
-
 MENU_ITEM admin_menu[] = {  
                             {.option = "CHANGE", .ID = CHANGE_ID},
                             {.option = "ADD", .ID = ADD_ID},
@@ -53,6 +54,14 @@ MENU_ITEM type_menu[] = {
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
  ******************************************************************************/
+static uint8_t actual_id[IDSIZE]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+static uint8_t card_id[IDSIZE]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+static uint8_t add_id[IDSIZE]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+
+static uint8_t actual_pass[PASSMAX]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+static uint8_t add_pass[PASSMAX]={NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR,NULLCHAR};
+static uint8_t digitCounter;
+static tim_id_t idTimer;
 
 static uint8_t actual_option = 0;           // Variable que marca la opcion del menú seleccionada.     
 
@@ -121,6 +130,59 @@ void next_id(){
     update_display(actual_id, digitCounter, 0);
 }
 
+
+void add_id_init(){
+    for(int i=0; i<IDSIZE; i++)
+    {
+        add_id[i]=NULLCHAR;
+    }
+    digitCounter=0;
+    update_display(add_id, digitCounter, 0);
+}
+
+void add_previous_id(){
+    if(digitCounter>0){
+        digitCounter--;
+        update_display(add_id, digitCounter, 0);
+    }
+    else
+        add_event(BACK);
+    inactivityTimer();
+}
+
+void add_upper_id(){
+    if (add_id[digitCounter]<9)
+    {
+        add_id[digitCounter]++;
+    }
+
+    else if(add_id[digitCounter]==9)
+        add_id[digitCounter]=0;
+
+    else if(add_id[digitCounter]==NULLCHAR)
+        add_id[digitCounter]=0;
+    
+    update_display(add_id, digitCounter, 0);
+    inactivityTimer();
+}
+
+void add_next_id(){
+    if(digitCounter < IDSIZE -1 && add_id[digitCounter]!=NULLCHAR){
+        digitCounter++;
+        inactivityTimer();
+    }
+
+    else if(add_id[digitCounter]==NULLCHAR){
+        inactivityTimer();
+    }
+
+    else if(digitCounter >= IDSIZE -1){
+        add_event(ID_READY);
+    }
+
+    update_display(add_id, digitCounter, 0);
+}
+
 void check_id(void){
 
     if(internal_check_id(actual_id))
@@ -130,7 +192,7 @@ void check_id(void){
 } 
 
 void used_id(){
-    if(internal_used_id(actual_id) || !avaliableUsers())
+    if(internal_used_id(add_id) || !avaliableUsers())
         add_event(WRONG_ID);
     else
         add_event(ID_OK);
@@ -149,12 +211,37 @@ void setIDTimer(){
 	}
 
     char_id[IDSIZE] = '\0';
+    dispArrSlideOnce(char_id);
+}
 
+void add_setIDTimer(){
+    timerStart(idTimer, TIMER_MS2TICKS(ID_SHOW_TIME), TIM_MODE_SINGLESHOT, setIDTimer_cb);
+    char char_id[IDSIZE+1];
+
+    for(uint8_t digit=0; digit<IDSIZE; digit++){
+    	char_id[digit]= (char)add_id[digit]+'0';
+	}
+
+    char_id[IDSIZE] = '\0';
     dispArrSlideOnce(char_id);
 }
 
 void setIDTimer_cb(){
     add_event(TIMEOUT);
+}
+
+void saveTemp(){
+    for(uint8_t digit=0; digit<IDSIZE; digit++){
+    	actual_id[digit]= card_id[digit];
+	}
+    add_event(ID_READY);
+}
+
+void addsaveTemp(){
+    for(uint8_t digit=0; digit<IDSIZE; digit++){
+    	add_id[digit]= card_id[digit];
+	}
+    add_event(ID_READY);
 }
 /**********************************************************
 ************************  PASSWORD  ***********************
@@ -167,13 +254,13 @@ void pass_init(){
     }
     digitCounter=0;
 
-    update_display(actual_pass, digitCounter, 1);
+    update_display(actual_pass, digitCounter, ADMIN);
 }
 
 void previous_pass(){
     if(digitCounter>0){
         digitCounter--;
-        update_display(actual_pass, digitCounter, 1);
+        update_display(actual_pass, digitCounter, ADMIN);
     }
     else{
         add_event(BACK);
@@ -191,7 +278,7 @@ void upper_pass(){
     else if(actual_pass[digitCounter]==9)
         actual_pass[digitCounter]=NULLCHAR;
     
-    update_display(actual_pass, digitCounter, 1);
+    update_display(actual_pass, digitCounter, ADMIN);
     inactivityTimer();
 }
 
@@ -200,7 +287,53 @@ void next_pass(){
         digitCounter++;
     }
 
-    update_display(actual_pass, digitCounter, 1);
+    update_display(actual_pass, digitCounter, ADMIN);
+    inactivityTimer();
+}
+
+void add_pass_init(){
+    for(int i=0; i<PASSMAX; i++)
+    {
+        add_pass[i]=NULLCHAR;
+    }
+    digitCounter=0;
+
+    update_display(add_pass, digitCounter, ADMIN);
+}
+
+
+void add_previous_pass(){
+    if(digitCounter>0){
+        digitCounter--;
+        update_display(add_pass, digitCounter, ADMIN);
+    }
+    else{
+        add_event(BACK);
+    }
+    inactivityTimer();
+}
+
+
+void add_upper_pass(){
+    if (add_pass[digitCounter]<9)
+        add_pass[digitCounter]++;
+
+    else if(add_pass[digitCounter]==NULLCHAR)
+        add_pass[digitCounter]=0;
+
+    else if(add_pass[digitCounter]==9)
+        add_pass[digitCounter]=NULLCHAR;
+    
+    update_display(add_pass, digitCounter, ADMIN);
+    inactivityTimer();
+}
+
+void add_next_pass(){
+    if(digitCounter < PASSMAX-1){
+        digitCounter++;
+    }
+
+    update_display(add_pass, digitCounter, ADMIN);
     inactivityTimer();
 }
 
@@ -215,31 +348,32 @@ void check_pass(){
 }  
 
 void save_pass(){
-    if(internal_save_pass(actual_id, actual_pass))
+    if(internal_save_pass(actual_id, add_pass))
         add_event(BACK);
     else
         add_event(RESET);
 }
 
 void add_user(){
-    if(internal_add_user(actual_id, actual_pass))
+    if(internal_add_user(add_id, add_pass))
         add_event(BACK);
     else
-        add_event(BACK);
+        add_event(NULL_EVENT);
 } 
 
 void verifyPass(){
-    if(internal_verifyPass(actual_id))
+    if(internal_verifyPass(add_pass))  // Verificamos que la password no tenga nulls
         add_event(PASS_READY);
     else
         add_event(WRONG_PASS);
 }
+
 /**********************************************************
 ************************  MENU  ***************************
 **********************************************************/
 void admin_allow_access(){
     init_admin_menu();
-    LEDMuxSetForTime(2, 5000);
+    LEDMuxSetForTime(2, OPENTIME);
 }
 
 void init_admin_menu(){
@@ -288,7 +422,7 @@ void click_menu_Admin(){
 
 void user_allow_access(){
     init_menu();
-    LEDMuxSetForTime(2, 5000);
+    LEDMuxSetForTime(2, OPENTIME);
 }
 
 void init_menu(){
@@ -379,9 +513,9 @@ void IDcardCb (bool state, const char* mydata){
     if(state){
         for(uint8_t digit=0; digit<IDSIZE; digit++)
         {
-            actual_id[digit]= (uint8_t)(mydata[digit]-'0');
+            card_id[digit]= (uint8_t)(mydata[digit]-'0');
         }
-        add_event(ID_READY);
+        add_event(CARD_READY);
     }
     else{
         add_event(ERROR_CARD);

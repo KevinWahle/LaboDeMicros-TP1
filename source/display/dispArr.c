@@ -77,7 +77,6 @@
 
 #define MS2CYC(ms)	((ms)/PISR_TIME)	// Converts milliseconds to PISR cycles
 
-
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  ******************************************************************************/
@@ -122,7 +121,6 @@ static uint32_t transCont = TRANS_CYC-1;	// Counter for slide
 static uint32_t timedShowCont;				// Counter for TIMED mode
 static uint32_t blinkCont = BLINK_CYC-1;	// Timer for BLINK mode
 static uint32_t dutyCont = DISP_CYC-1;		// Counter of display show time for brightness control
-
 
 
 // Flags
@@ -212,7 +210,7 @@ uint8_t dispArrGetBright() {
  * @brief Set the brightness of the display array
  * @param bright: Level of brightness [0-100]
  */
-void dispArrSetBright(uint8_t bright) {
+void dispArrSetBright(int8_t bright) {
 	actualBright = LIMIT(bright, 0, MAX_BRIGHT);
 }
 

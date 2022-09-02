@@ -11,22 +11,13 @@
 #include "timer.h"
 #include "SysTick.h"
 
-
 /*******************************************************************************
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
-/* TODO: Medio rari */
-/*
-#if TIMER_TICK_MS != (1000U/SYSTICK_ISR_FREQUENCY_HZ)
-#error Las frecuencias no coinciden!!
-#endif // TIMER_TICK_MS != (1000U/SYSTICK_ISR_FREQUENCY_HZ)
-*/
-
 #define TIMER_DEVELOPMENT_MODE    0
 
 #define TIMER_ID_INTERNAL   0
-
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
@@ -42,11 +33,6 @@ typedef struct {
   uint8_t             unused      : 5;
 } timer_t;
 
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -55,11 +41,6 @@ typedef struct {
  * @brief Periodic service
  */
 static void timer_isr(void);
-
-
-/*******************************************************************************
- * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
 
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE

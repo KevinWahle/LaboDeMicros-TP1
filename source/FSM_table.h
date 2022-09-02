@@ -10,14 +10,17 @@
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
+
 #include "FSM_routines.h"
 #include "event_queue/event_queue.h"
 
 /*******************************************************************************
  * ENUMERATIONS AND STRUCTURES AND TYPEDEFS
  *******************************************************************************/
+
 typedef struct state_diagram_edge STATE;
-struct state_diagram_edge{
+
+struct state_diagram_edge {
     event_t evento;
 	//Evento que activa la rutina de acción
 
@@ -28,6 +31,8 @@ struct state_diagram_edge{
     void (*p_rut_accion)(void);
     // Función a realizar durante la transición entre un estado y otro.
 };
+
+
 
 STATE *fsm_interprete(STATE * p_tabla_estado_actual, event_t evento_actual);
 
@@ -52,7 +57,8 @@ STATE ID_state[] = {
     {ENCODER_LONG, brillo_state, brillo_init},          
     {ENCODER_LEFT, ID_state, previous_id},
     {ENCODER_RIGHT, ID_state, upper_id}, 
-    {ENCODER_PRESS, ID_state, next_id}, 
+    {ENCODER_PRESS, ID_state, next_id},
+    {CARD_READY, ID_state, saveTemp},
     {ID_READY, ID_show, setIDTimer},
     {TIMEOUT, ID_state, id_init},
     {ERROR_CARD, IDError_state, errorScreen},
@@ -100,8 +106,8 @@ STATE AdminMenu_state[] = {
     {ENCODER_LEFT, AdminMenu_state, up_menu_Admin},       
     {ENCODER_RIGHT, AdminMenu_state, down_menu_Admin},    
     {ENCODER_PRESS, AdminMenu_state, click_menu_Admin},      
-    {CHNG_PASS, changePassA_state, pass_init},
-    {ADD_USER, addID_state, id_init},
+    {CHNG_PASS, changePassA_state, add_pass_init},
+    {ADD_USER, addID_state, add_id_init},
     {DEL_USER, delUser_state, list_init},
     {TIMEOUT, ID_state, id_init},
     {BACK, ID_state, id_init},
@@ -109,20 +115,21 @@ STATE AdminMenu_state[] = {
 };
 
 STATE changePassA_state[] = {
-    {ENCODER_LEFT, changePassA_state, previous_pass}, 
-    {ENCODER_RIGHT, changePassA_state, upper_pass},
-    {ENCODER_PRESS, changePassA_state, next_pass}, 
-    {ENCODER_LONG, changePassA_state, save_pass},     //TODO: nuevo estado de error
-    {RESET, changePassA_state, pass_init},
+    {ENCODER_LEFT, changePassA_state, add_previous_pass}, 
+    {ENCODER_RIGHT, changePassA_state, add_upper_pass},
+    {ENCODER_PRESS, changePassA_state, add_next_pass}, 
+    {ENCODER_LONG, changePassA_state, save_pass},    
+    {RESET, changePassA_state, add_pass_init},
     {BACK, AdminMenu_state, init_admin_menu},
     {NULL_EVENT, changePassA_state, doNothing}
 };
 
 STATE addID_state[] = {
-    {ENCODER_LEFT, addID_state, previous_id},
-    {ENCODER_RIGHT, addID_state, upper_id}, 
-    {ENCODER_PRESS, addID_state, next_id}, 
-    {ID_READY, add_ID_show, setIDTimer},
+    {ENCODER_LEFT, addID_state, add_previous_id},
+    {ENCODER_RIGHT, addID_state, add_upper_id}, 
+    {ENCODER_PRESS, addID_state, add_next_id},
+    {CARD_READY, addID_state, addsaveTemp}, 
+    {ID_READY, add_ID_show, add_setIDTimer},
     {WRONG_ID, addError_state, errorScreen},     
     {BACK, AdminMenu_state, init_admin_menu},
     {NULL_EVENT, addID_state, doNothing}
@@ -130,8 +137,8 @@ STATE addID_state[] = {
 
 STATE add_ID_show[] = {
     {TIMEOUT, add_ID_show, used_id},          
-    {WRONG_ID, addID_state, id_init},     
-    {ID_OK, addPass_state, pass_init},
+    {WRONG_ID, addID_state, add_id_init},     
+    {ID_OK, addPass_state, add_pass_init},
     {NULL_EVENT, add_ID_show, doNothing}
 }; 
 
@@ -141,20 +148,20 @@ STATE addError_state[] = {
 };
 
 STATE addPass_state[] = {
-    {ENCODER_LEFT, addPass_state, previous_pass},  
-    {ENCODER_RIGHT, addPass_state, upper_pass}, 
-    {ENCODER_PRESS, addPass_state, next_pass}, 
+    {ENCODER_LEFT, addPass_state, add_previous_pass},  
+    {ENCODER_RIGHT, addPass_state, add_upper_pass}, 
+    {ENCODER_PRESS, addPass_state, add_next_pass}, 
     {ENCODER_LONG, addPass_state, verifyPass},
-    {PASS_READY, addType_state, init_type_menu},    //Password OK
-    {WRONG_PASS, addPass_state, pass_init},          
-    {BACK, addID_state, id_init},
+    {PASS_READY, addType_state, init_type_menu},
+    {WRONG_PASS, addPass_state, add_pass_init},          
+    {BACK, addID_state, add_id_init},
     {NULL_EVENT, addPass_state, doNothing}
 };
 
 STATE addType_state[] = {
     {ENCODER_LEFT, addType_state, toggleType},    
     {ENCODER_RIGHT, addType_state, toggleType},
-    {ENCODER_PRESS, addType_state, add_user},
+    {ENCODER_PRESS, addType_state, add_user},  
     {BACK, AdminMenu_state, init_admin_menu},
     {NULL_EVENT, addType_state, doNothing}
 };
@@ -180,10 +187,10 @@ STATE UserMenu_state[] = {
 };
 
 STATE changePass_state[] = {
-    {ENCODER_LEFT, changePass_state, previous_pass},
-    {ENCODER_RIGHT, changePass_state, upper_pass},
-    {ENCODER_PRESS, changePass_state, next_pass}, 
-    {ENCODER_LONG, changePass_state, save_pass},    //TODO: nuevo estado de error
+    {ENCODER_LEFT, changePass_state, add_previous_pass},
+    {ENCODER_RIGHT, changePass_state, add_upper_pass},
+    {ENCODER_PRESS, changePass_state, add_next_pass}, 
+    {ENCODER_LONG, changePass_state, save_pass},
     {RESET, changePass_state, pass_init},
     {BACK, UserMenu_state, init_menu},
     {NULL_EVENT, changePass_state, doNothing}

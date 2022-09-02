@@ -43,8 +43,6 @@ bool encoderInit( encoderCb funCbParam ){
 	gpioMode(rchb, INPUT);
 	gpioMode(button, INPUT);
 
-	//gpioMode(PORTNUM2PIN(PD,1), OUTPUT);
-
 	funCb = funCbParam;
 
 	tim_id_t periodicTimerID = timerGetId();
@@ -54,8 +52,6 @@ bool encoderInit( encoderCb funCbParam ){
 }
 
 static void smEnconder(void){
-
-	//gpioWrite(PORTNUM2PIN(PD, 1), HIGH); TEST POINT 4US APROX
 
 	static SM_ENCODER state_rotate = IDLE_ENCODER;
 	static SM_BUTTON state_button = IDLE_BUTTON;
@@ -132,8 +128,6 @@ static void smEnconder(void){
 		}
 		break;
 	}
-
-	//gpioWrite(PORTNUM2PIN(PD, 1), LOW);
 
 }
 

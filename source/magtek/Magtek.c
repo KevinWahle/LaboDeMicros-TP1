@@ -19,11 +19,15 @@
  * CONSTANT AND MACRO DEFINITIONS USING #DEFINE
  ******************************************************************************/
 
+#define ENABLE_TP
 
 #define DATA	PORTNUM2PIN(PA,1)
 #define CLK		PORTNUM2PIN(PB,9)
 #define ENABLE	PORTNUM2PIN(PC,17)
-//#define TESTPIN PORTNUM2PIN(PB,18)
+
+#ifdef	ENABLE_TP
+#define TESTPIN PORTNUM2PIN(PB,2)
+#endif
 
 #define CHAR_0 		0b00001
 #define CHAR_1 		0b10000
@@ -58,11 +62,6 @@ typedef struct {
 
 enum {SS, PAN, FS, ADDIT, DISCR, ES, ERROR, NOTDATA};
 
-
-/*******************************************************************************
- * VARIABLES WITH GLOBAL SCOPE
- ******************************************************************************/
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
@@ -80,14 +79,6 @@ static void write(uint32_t position, uint8_t status, char character);
 
 // Clear all strings
 static void clear();
-
-
-/*******************************************************************************
- * ROM CONST VARIABLES WITH FILE LEVEL SCOPE
- ******************************************************************************/
-
-
-
 
 /*******************************************************************************
  * STATIC VARIABLES AND CONST VARIABLES WITH FILE LEVEL SCOPE
@@ -116,7 +107,10 @@ bool CardInit(cardCb funCb){
 	gpioMode (CLK,INPUT);		// Set GPIO
 	gpioMode (DATA,INPUT);
 	gpioMode (ENABLE,INPUT);
-	//gpioMode (TESTPIN,OUTPUT);
+
+#ifdef ENABLE_TP
+	gpioMode(TESTPIN, OUTPUT);
+#endif
 
 	timerInit();
 
@@ -142,7 +136,10 @@ bool CardInit(cardCb funCb){
  *******************************************************************************
  ******************************************************************************/
 void clkCb (){
-//	gpioWrite(TESTPIN, true);
+
+#ifdef ENABLE_TP
+	gpioWrite(TESTPIN, HIGH);
+#endif
 
 	buffer tempbuf = {.buff=(mybuffer.buff<<1), .nth=0b000};
 	mybuffer.buff = tempbuf.buff | !(gpioRead(DATA));			// Add new data to buffer
@@ -152,7 +149,10 @@ void clkCb (){
 		buff_count=RESET;
 	}
 	readbuff();
-//	gpioWrite(TESTPIN, false);
+
+#ifdef ENABLE_TP
+	gpioWrite(TESTPIN, LOW);
+#endif
 
 }
 
@@ -166,9 +166,6 @@ void enCb (){
 void readbuff(){
 	static uint32_t i=RESET;
 
-//	if (gpioRead(ENABLE)){
-//		status=SS;
-//	}
 	if (mybuffer.buff==SEMICOLON && status==SS)			// ; starts the reading
 	{
 		timerStart(timer_id, TIMER_MS2TICKS(100), TIM_MODE_PERIODIC, enCb);

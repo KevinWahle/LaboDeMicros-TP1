@@ -19,17 +19,11 @@
  ******************************************************************************/
 //#define DEBUG 1
 
-#define IDSIZE	8
-#define PASSMIN	4
-#define PASSMAX	5
-#define ADMIN_MENU_LEN	4
-#define USER_MENU_LEN	2
-#define PASSMAX	5
-#define NULLCHAR 10
-#define MAXUSER	100
-#define INACTIVITYTIME 30000
-#define PASSRETENTION 10000
-#define ERROR_MSG	"Error"
+#define IDSIZE			8
+#define PASSMIN			4
+#define PASSMAX			5
+#define NULLCHAR 		10
+
 enum EVENTS {
 	
 	// Eventos de Software

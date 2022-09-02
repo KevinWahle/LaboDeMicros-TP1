@@ -16,10 +16,6 @@
 #include "stdint.h"
 
 /*******************************************************************************
- * VARIABLE PROTOTYPES WITH GLOBAL SCOPE
- ******************************************************************************/
-
-/*******************************************************************************
  * FUNCTION PROTOTYPES WITH GLOBAL SCOPE
  ******************************************************************************/
 
@@ -53,6 +49,7 @@ void id_init();
 */
 void previous_id();
 
+
 /**
  * @brief Incrementa el digito actual del ID
 */
@@ -62,6 +59,26 @@ void upper_id();
  * @brief Pasa a modificar el sgte digito
 */
 void next_id();
+
+/**
+ * @brief reset del arreglo de id a agregar y su puntero
+*/
+void add_id_init();
+
+/**
+ * @brief movemos puntero para atras
+*/
+void add_previous_id();
+
+/**
+ * @brief Incrementa el digito actual del ID
+*/
+void add_upper_id();
+
+/**
+ * @brief Pasa a modificar el sgte digito
+*/
+void add_next_id();
 
 /**
  * @brief Checkea si el ID existe
@@ -87,6 +104,26 @@ void upper_pass();
  * @brief Pasa a modificar el sgte digito
 */
 void next_pass();   
+
+/**
+ * @brief Reset del arreglo de password a agregar y su puntero
+*/
+void add_pass_init();   
+
+/**
+ * @brief movemos puntero para atras
+*/
+void add_previous_pass();
+
+/**
+ * @brief Incrementa el digito actual de la pass a agregar
+*/
+void add_upper_pass();
+
+/**
+ * @brief Pasa a modificar el sgte digito de la password a agregar
+*/
+void add_next_pass();
 
 /**
  * @brief Verifica que la password se corresponda 
@@ -195,6 +232,11 @@ void doNothing();
 void setIDTimer();
 
 /**
+ * @brief Inicializa el timer y muestra el id a agregar
+ */
+void add_setIDTimer();
+
+/**
  * @brief Pide id de timer
 */
 void setUpIDTimer();
@@ -233,6 +275,18 @@ void verifyPass();
  * @brief Muestra el mensaje de error y inicia el timer de demora
  */
 void errorPassScreen();
+
+/**
+ * @brief Guarda la variable temporal de la tarjeta en la variable de ID definitiva
+ */
+void saveTemp();
+
+/**
+ * @brief Guarda la variable temporal de la tarjeta en la variable de ID 
+ * que se guarda en la base de datos
+ */
+void addsaveTemp();
+
 /*******************************************************************************
  ******************************************************************************/
 

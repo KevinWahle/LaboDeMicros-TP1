@@ -8,16 +8,18 @@
 /*******************************************************************************
  * INCLUDE HEADER FILES
  ******************************************************************************/
+
 #include <stdint.h>
 #include "const.h"
 #include "event_queue/event_queue.h"
 #include "userDatabase.h"
 
-
+#define MAXUSER			100
 
 /*******************************************************************************
  * GLOBAL VARIABLES
  ******************************************************************************/
+
 typedef struct{
     uint8_t id[IDSIZE];
     uint8_t password[PASSMAX];
@@ -29,15 +31,16 @@ static uint16_t usercount;
 static user database[MAXUSER];
 bool userType;
 
-
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
  ******************************************************************************/
+
 uint8_t searchUser(uint8_t * id);
 void copyUser();
 uint8_t passwordEquals(uint8_t* password,uint8_t indice);
 bool sameid(uint8_t* id, uint8_t* del_id);
 void updateListDis(uint8_t* id);
+
 /*******************************************************************************
  *******************************************************************************
                         GLOBAL FUNCTION DEFINITIONS
@@ -45,7 +48,7 @@ void updateListDis(uint8_t* id);
  ******************************************************************************/
 
 void init_Database(){
-	database[0] = (user){.id={4,5,1,7,6,6,0,1}, .password={0,1,2,3,NULLCHAR}, .admin=1};
+	database[0] = (user){.id={4,5,1,7,6,6,0,1}, .password={0,1,2,3,NULLCHAR}, .admin=1};    // Usuarios de prueba
 	database[1] = (user){.id={4,4,5,4,7,0,7,1}, .password={5,4,3,2,1}, .admin=1};
 	database[2] = (user){.id={3,4,5,9,5,7,2,8}, .password={4,5,6,7,8}, .admin=0};
 	database[3] = (user){.id={2,2,5,0,1,0,4,8}, .password={0,7,0,3,NULLCHAR}, .admin=0};
@@ -117,7 +120,7 @@ bool internal_check_pass(uint8_t * id, uint8_t * password){
             return false;
     }
 
-    uint8_t indice = searchUser(id);    //TODO: por que falla?
+    uint8_t indice = searchUser(id);
     if (indice==MAXUSER)
         return false;
     return passwordEquals(password, indice);
@@ -230,5 +233,6 @@ uint8_t actualType(){
     else 
         return NORMAL;
 }
+
 /*******************************************************************************
  ******************************************************************************/

@@ -45,7 +45,7 @@ uint8_t dispArrGetBright();
  * @brief Set the brightness of the display array
  * @param bright: Level of brightness [0-100]
  */
-void dispArrSetBright(uint8_t bright);
+void dispArrSetBright(int8_t bright);
 
 
 /**
