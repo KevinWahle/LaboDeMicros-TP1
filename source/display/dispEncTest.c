@@ -9,7 +9,7 @@
  ******************************************************************************/
 
 #include "dispArr.h"
-#include "encoder_hal.h"
+#include "encoder/encoder_hal.h"
 
 /*******************************************************************************
  * FUNCTION PROTOTYPES FOR PRIVATE FUNCTIONS WITH FILE LEVEL SCOPE
@@ -41,7 +41,7 @@ void App_Run (void)
 void nextMode(ENC_STATE state) {
 
 	static uint8_t mode = 0;
-	static uint8_t numArr[] = {1, 10, 8, 9};
+	static cosnt uint8_t numArr[] = {1, 10, 8, 9};
 
 	if (state == ENC_RIGHT || state == ENC_CLICK) {
 		mode++;
